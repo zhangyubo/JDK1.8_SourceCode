@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -42,11 +42,12 @@ import org.w3c.dom.Attr;
  */
 public class ResourceResolver {
 
-    private static final com.sun.org.slf4j.internal.Logger LOG =
-        com.sun.org.slf4j.internal.LoggerFactory.getLogger(ResourceResolver.class);
+    /** {@link org.apache.commons.logging} logging facility */
+    private static java.util.logging.Logger log =
+        java.util.logging.Logger.getLogger(ResourceResolver.class.getName());
 
     /** these are the system-wide resolvers */
-    private static final List<ResourceResolver> resolverList = new ArrayList<>();
+    private static List<ResourceResolver> resolverList = new ArrayList<ResourceResolver>();
 
     /** Field resolverSpi */
     private final ResourceResolverSpi resolverSpi;
@@ -63,7 +64,21 @@ public class ResourceResolver {
     /**
      * Method getInstance
      *
-     * @param uriAttr
+     * @param uri
+     * @param baseURI
+     * @return the instance
+     *
+     * @throws ResourceResolverException
+     */
+    public static final ResourceResolver getInstance(Attr uri, String baseURI)
+        throws ResourceResolverException {
+        return getInstance(uri, baseURI, false);
+    }
+
+    /**
+     * Method getInstance
+     *
+     * @param uri
      * @param baseURI
      * @param secureValidation
      * @return the instance
@@ -84,27 +99,29 @@ public class ResourceResolver {
                 ResourceResolver resolverTmp = resolver;
                 if (!resolver.resolverSpi.engineIsThreadSafe()) {
                     try {
-                        @SuppressWarnings("deprecation")
-                        ResourceResolver tmp =
+                        resolverTmp =
                             new ResourceResolver(resolver.resolverSpi.getClass().newInstance());
-                        resolverTmp = tmp;
                     } catch (InstantiationException e) {
-                        throw new ResourceResolverException(e, context.uriToResolve, context.baseUri, "");
+                        throw new ResourceResolverException("", e, context.attr, context.baseUri);
                     } catch (IllegalAccessException e) {
-                        throw new ResourceResolverException(e, context.uriToResolve, context.baseUri, "");
+                        throw new ResourceResolverException("", e, context.attr, context.baseUri);
                     }
                 }
 
-                LOG.debug("check resolvability by class {}", resolverTmp.getClass().getName());
+                if (log.isLoggable(java.util.logging.Level.FINE)) {
+                    log.log(java.util.logging.Level.FINE,
+                        "check resolvability by class " + resolverTmp.getClass().getName()
+                    );
+                }
 
-                if (resolverTmp.canResolve(context)) {
+                if ((resolverTmp != null) && resolverTmp.canResolve(context)) {
                     // Check to see whether the Resolver is allowed
                     if (context.secureValidation
                         && (resolverTmp.resolverSpi instanceof ResolverLocalFilesystem
                             || resolverTmp.resolverSpi instanceof ResolverDirectHTTP)) {
                         Object exArgs[] = { resolverTmp.resolverSpi.getClass().getName() };
                         throw new ResourceResolverException(
-                            "signature.Reference.ForbiddenResolver", exArgs, context.uriToResolve, context.baseUri
+                            "signature.Reference.ForbiddenResolver", exArgs, context.attr, context.baseUri
                         );
                     }
                     return resolverTmp;
@@ -112,10 +129,10 @@ public class ResourceResolver {
             }
         }
 
-        Object exArgs[] = { context.uriToResolve != null
-                ? context.uriToResolve : "null", context.baseUri };
+        Object exArgs[] = { ((context.uriToResolve != null)
+                ? context.uriToResolve : "null"), context.baseUri };
 
-        throw new ResourceResolverException("utils.resolver.noClass", exArgs, context.uriToResolve, context.baseUri);
+        throw new ResourceResolverException("utils.resolver.noClass", exArgs, context.attr, context.baseUri);
     }
 
     /**
@@ -131,7 +148,7 @@ public class ResourceResolver {
     public static ResourceResolver getInstance(
         Attr uri, String baseURI, List<ResourceResolver> individualResolvers
     ) throws ResourceResolverException {
-        return getInstance(uri, baseURI, individualResolvers, true);
+        return getInstance(uri, baseURI, individualResolvers, false);
     }
 
     /**
@@ -148,10 +165,12 @@ public class ResourceResolver {
     public static ResourceResolver getInstance(
         Attr uri, String baseURI, List<ResourceResolver> individualResolvers, boolean secureValidation
     ) throws ResourceResolverException {
-        LOG.debug(
-            "I was asked to create a ResourceResolver and got {}",
-            (individualResolvers == null ? 0 : individualResolvers.size())
-        );
+        if (log.isLoggable(java.util.logging.Level.FINE)) {
+            log.log(java.util.logging.Level.FINE,
+                "I was asked to create a ResourceResolver and got "
+                + (individualResolvers == null ? 0 : individualResolvers.size())
+            );
+        }
 
         ResourceResolverContext context = new ResourceResolverContext(uri, baseURI, secureValidation);
 
@@ -161,8 +180,10 @@ public class ResourceResolver {
                 ResourceResolver resolver = individualResolvers.get(i);
 
                 if (resolver != null) {
-                    String currentClass = resolver.resolverSpi.getClass().getName();
-                    LOG.debug("check resolvability by class {}", currentClass);
+                    if (log.isLoggable(java.util.logging.Level.FINE)) {
+                        String currentClass = resolver.resolverSpi.getClass().getName();
+                        log.log(java.util.logging.Level.FINE, "check resolvability by class " + currentClass);
+                    }
 
                     if (resolver.canResolve(context)) {
                         return resolver;
@@ -175,7 +196,7 @@ public class ResourceResolver {
     }
 
     /**
-     * Registers a ResourceResolverSpi class. This method LOGs a warning if
+     * Registers a ResourceResolverSpi class. This method logs a warning if
      * the class cannot be registered.
      *
      * @param className the name of the ResourceResolverSpi class to be registered
@@ -187,17 +208,16 @@ public class ResourceResolver {
         JavaUtils.checkRegisterPermission();
         try {
             Class<ResourceResolverSpi> resourceResolverClass =
-                (Class<ResourceResolverSpi>)
-                ClassLoaderUtils.loadClass(className, ResourceResolver.class);
+                (Class<ResourceResolverSpi>) Class.forName(className);
             register(resourceResolverClass, false);
         } catch (ClassNotFoundException e) {
-            LOG.warn("Error loading resolver " + className + " disabling it");
+            log.log(java.util.logging.Level.WARNING, "Error loading resolver " + className + " disabling it");
         }
     }
 
     /**
      * Registers a ResourceResolverSpi class at the beginning of the provider
-     * list. This method LOGs a warning if the class cannot be registered.
+     * list. This method logs a warning if the class cannot be registered.
      *
      * @param className the name of the ResourceResolverSpi class to be registered
      * @throws SecurityException if a security manager is installed and the
@@ -208,16 +228,15 @@ public class ResourceResolver {
         JavaUtils.checkRegisterPermission();
         try {
             Class<ResourceResolverSpi> resourceResolverClass =
-                (Class<ResourceResolverSpi>)
-                ClassLoaderUtils.loadClass(className, ResourceResolver.class);
+                (Class<ResourceResolverSpi>) Class.forName(className);
             register(resourceResolverClass, true);
         } catch (ClassNotFoundException e) {
-            LOG.warn("Error loading resolver " + className + " disabling it");
+            log.log(java.util.logging.Level.WARNING, "Error loading resolver " + className + " disabling it");
         }
     }
 
     /**
-     * Registers a ResourceResolverSpi class. This method LOGs a warning if the class
+     * Registers a ResourceResolverSpi class. This method logs a warning if the class
      * cannot be registered.
      * @param className
      * @param start
@@ -227,18 +246,17 @@ public class ResourceResolver {
     public static void register(Class<? extends ResourceResolverSpi> className, boolean start) {
         JavaUtils.checkRegisterPermission();
         try {
-            @SuppressWarnings("deprecation")
             ResourceResolverSpi resourceResolverSpi = className.newInstance();
             register(resourceResolverSpi, start);
         } catch (IllegalAccessException e) {
-            LOG.warn("Error loading resolver " + className + " disabling it");
+            log.log(java.util.logging.Level.WARNING, "Error loading resolver " + className + " disabling it");
         } catch (InstantiationException e) {
-            LOG.warn("Error loading resolver " + className + " disabling it");
+            log.log(java.util.logging.Level.WARNING, "Error loading resolver " + className + " disabling it");
         }
     }
 
     /**
-     * Registers a ResourceResolverSpi instance. This method LOGs a warning if the class
+     * Registers a ResourceResolverSpi instance. This method logs a warning if the class
      * cannot be registered.
      * @param resourceResolverSpi
      * @param start
@@ -254,7 +272,9 @@ public class ResourceResolver {
                 resolverList.add(new ResourceResolver(resourceResolverSpi));
             }
         }
-        LOG.debug("Registered resolver: {}", resourceResolverSpi.toString());
+        if (log.isLoggable(java.util.logging.Level.FINE)) {
+            log.log(java.util.logging.Level.FINE, "Registered resolver: " + resourceResolverSpi.toString());
+        }
     }
 
     /**
@@ -267,6 +287,15 @@ public class ResourceResolver {
             resolverList.add(new ResourceResolver(new ResolverXPointer()));
             resolverList.add(new ResourceResolver(new ResolverDirectHTTP()));
         }
+    }
+
+    /**
+     * @deprecated New clients should use {@link #resolve(Attr, String, boolean)}
+     */
+    @Deprecated
+    public XMLSignatureInput resolve(Attr uri, String baseURI)
+        throws ResourceResolverException {
+        return resolve(uri, baseURI, true);
     }
 
     /**

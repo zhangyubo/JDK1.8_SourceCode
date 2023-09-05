@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001, 2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,11 +20,11 @@
 
 package com.sun.org.apache.xerces.internal.impl.dv;
 
-import com.sun.org.apache.xerces.internal.impl.xs.util.XSObjectListImpl;
-import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
+import java.util.Vector;
+
 import com.sun.org.apache.xerces.internal.xs.XSAnnotation;
 import com.sun.org.apache.xerces.internal.xs.XSObjectList;
-import java.util.List;
+import com.sun.org.apache.xerces.internal.impl.xs.util.XSObjectListImpl;
 
 /**
  * The class used to pass all facets to {@link XSSimpleType#applyFacets}.
@@ -74,16 +73,16 @@ public class XSFacets {
     public String pattern;
 
     /**
-     * ArrayList containing values of Enumeration facet, as String's.
+     * Vector containing values of Enumeration facet, as String's.
      */
-    public List<String> enumeration;
+    public Vector enumeration;
 
     /**
      * An array parallel to "Vector enumeration". It contains namespace context
      * of each enumeration value. Elements of this vector are NamespaceContext
      * objects.
      */
-    public List<NamespaceContext> enumNSDecls;
+    public Vector enumNSDecls;
 
     /**
      * value of maxInclusive facet.

@@ -44,6 +44,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Templates;
@@ -73,7 +74,7 @@ public abstract class AbstractTranslet implements Translet {
     public String  _doctypeSystem = null;
     public boolean _indent = false;
     public String  _mediaType = null;
-    public ArrayList<String> _cdata = null;
+    public Vector _cdata = null;
     public int _indentamount = -1;
 
     public static final int FIRST_TRANSLET_VERSION = 100;
@@ -154,7 +155,7 @@ public abstract class AbstractTranslet implements Translet {
      * Push a new parameter frame.
      */
     public final void pushParamFrame() {
-        paramsStack.add(pframe, pbase);
+        paramsStack.add(pframe, new Integer(pbase));
         pbase = ++pframe;
     }
 
@@ -644,7 +645,7 @@ public abstract class AbstractTranslet implements Translet {
      */
     public void addCdataElement(String name) {
         if (_cdata == null) {
-            _cdata = new ArrayList<>();
+            _cdata = new Vector();
         }
 
         int lastColon = name.lastIndexOf(':');
@@ -652,11 +653,11 @@ public abstract class AbstractTranslet implements Translet {
         if (lastColon > 0) {
             String uri = name.substring(0, lastColon);
             String localName = name.substring(lastColon+1);
-            _cdata.add(uri);
-            _cdata.add(localName);
+            _cdata.addElement(uri);
+            _cdata.addElement(localName);
         } else {
-            _cdata.add(null);
-            _cdata.add(name);
+            _cdata.addElement(null);
+            _cdata.addElement(name);
         }
     }
 

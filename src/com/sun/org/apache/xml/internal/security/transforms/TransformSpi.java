@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -36,10 +36,9 @@ import org.xml.sax.SAXException;
  * have to be overridden are the
  * {@link #enginePerformTransform(XMLSignatureInput, Transform)} method.
  *
+ * @author Christian Geuer-Pollmann
  */
 public abstract class TransformSpi {
-
-    protected boolean secureValidation;
 
     /**
      * The mega method which MUST be implemented by the Transformation Algorithm.
@@ -105,9 +104,9 @@ public abstract class TransformSpi {
     }
 
     /**
-     * Returns the URI representation of {@code Transformation algorithm}
+     * Returns the URI representation of <code>Transformation algorithm</code>
      *
-     * @return the URI representation of {@code Transformation algorithm}
+     * @return the URI representation of <code>Transformation algorithm</code>
      */
     protected abstract String engineGetURI();
 }

@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,7 +20,7 @@
 
 package com.sun.org.apache.xerces.internal.impl.xpath.regex;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * @xerces.internal
@@ -127,7 +126,7 @@ class Op {
         return op;
     }
 
-    final int type;
+    int type;
     Op next = null;
 
     protected Op(int type) {
@@ -159,7 +158,7 @@ class Op {
 
     // ================================================================
     static class CharOp extends Op {
-        final int charData;
+        int charData;
         CharOp(int type, int data) {
             super(type);
             this.charData = data;
@@ -171,19 +170,19 @@ class Op {
 
     // ================================================================
     static class UnionOp extends Op {
-        final ArrayList<Op> branches;
+        Vector branches;
         UnionOp(int type, int size) {
             super(type);
-            this.branches = new ArrayList<>(size);
+            this.branches = new Vector(size);
         }
         void addElement(Op op) {
-            this.branches.add(op);
+            this.branches.addElement(op);
         }
         int size() {
             return this.branches.size();
         }
         Op elementAt(int index) {
-            return this.branches.get(index);
+            return (Op)this.branches.elementAt(index);
         }
     }
 
@@ -202,8 +201,8 @@ class Op {
     }
     // ================================================================
     static class ModifierOp extends ChildOp {
-        final int v1;
-        final int v2;
+        int v1;
+        int v2;
         ModifierOp(int type, int v1, int v2) {
             super(type);
             this.v1 = v1;
@@ -218,7 +217,7 @@ class Op {
     }
     // ================================================================
     static class RangeOp extends Op {
-        final Token tok;
+        Token tok;
         RangeOp(int type, Token tok) {
             super(type);
             this.tok = tok;
@@ -229,7 +228,7 @@ class Op {
     }
     // ================================================================
     static class StringOp extends Op {
-        final String string;
+        String string;
         StringOp(int type, String literal) {
             super(type);
             this.string = literal;
@@ -240,10 +239,10 @@ class Op {
     }
     // ================================================================
     static class ConditionOp extends Op {
-        final int refNumber;
-        final Op condition;
-        final Op yes;
-        final Op no;
+        int refNumber;
+        Op condition;
+        Op yes;
+        Op no;
         ConditionOp(int type, int refno, Op conditionflow, Op yesflow, Op noflow) {
             super(type);
             this.refNumber = refno;

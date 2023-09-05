@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -271,7 +271,6 @@ abstract class LongPipeline<E_IN>
 
     @Override
     public final LongStream flatMap(LongFunction<? extends LongStream> mapper) {
-        Objects.requireNonNull(mapper);
         return new StatelessOp<Long>(this, StreamShape.LONG_VALUE,
                                      StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
             @Override
@@ -448,7 +447,6 @@ abstract class LongPipeline<E_IN>
     public final <R> R collect(Supplier<R> supplier,
                                ObjLongConsumer<R> accumulator,
                                BiConsumer<R, R> combiner) {
-        Objects.requireNonNull(combiner);
         BinaryOperator<R> operator = (left, right) -> {
             combiner.accept(left, right);
             return left;

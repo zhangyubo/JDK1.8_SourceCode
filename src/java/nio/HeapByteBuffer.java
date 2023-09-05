@@ -95,15 +95,12 @@ class HeapByteBuffer
     }
 
     public ByteBuffer slice() {
-        int pos = this.position();
-        int lim = this.limit();
-        int rem = (pos <= lim ? lim - pos : 0);
         return new HeapByteBuffer(hb,
                                         -1,
                                         0,
-                                        rem,
-                                        rem,
-                                        pos + offset);
+                                        this.remaining(),
+                                        this.remaining(),
+                                        this.position() + offset);
     }
 
     public ByteBuffer duplicate() {

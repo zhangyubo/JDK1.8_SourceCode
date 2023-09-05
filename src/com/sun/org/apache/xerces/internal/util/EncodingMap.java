@@ -471,7 +471,6 @@ import java.util.Map;
  * @author TAMURA Kent, IBM
  * @author Andy Clark, IBM
  *
- * @version $Id$
  */
 public class EncodingMap {
 

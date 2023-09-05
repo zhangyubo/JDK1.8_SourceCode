@@ -1,33 +1,72 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Oct 2017
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * The Apache Software License, Version 1.1
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2000-2002 The Apache Software Foundation.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       "This product includes software developed by the
+ *        Apache Software Foundation (http://www.apache.org/)."
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names "Xerces" and "Apache Software Foundation" must
+ *    not be used to endorse or promote products derived from this
+ *    software without prior written permission. For written
+ *    permission, please contact apache@apache.org.
+ *
+ * 5. Products derived from this software may not be called "Apache",
+ *    nor may "Apache" appear in their name, without prior written
+ *    permission of the Apache Software Foundation.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation and was
+ * originally based on software copyright (c) 1999, International
+ * Business Machines, Inc., http://www.apache.org.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
  */
 
 package com.sun.org.apache.xerces.internal.util;
 
-import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
+import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
 
 /**
  * Namespace support for XML document handlers. This class doesn't
@@ -91,9 +130,9 @@ public class NamespaceSupport implements NamespaceContext {
     public NamespaceSupport(NamespaceContext context) {
         pushContext();
         // copy declaration in the context
-        Enumeration<String> prefixes = context.getAllPrefixes();
+        Enumeration prefixes = context.getAllPrefixes();
         while (prefixes.hasMoreElements()){
-            String prefix = prefixes.nextElement();
+            String prefix = (String)prefixes.nextElement();
             String uri = context.getURI(prefix);
             declarePrefix(prefix, uri);
         }
@@ -241,7 +280,7 @@ public class NamespaceSupport implements NamespaceContext {
         return fNamespace[fContext[fCurrentContext] + index * 2];
     } // getDeclaredPrefixAt(int):String
 
-    public Iterator<String> getPrefixes(){
+    public Iterator getPrefixes(){
         int count = 0;
         if (fPrefixes.length < (fNamespace.length/2)) {
             // resize prefix array
@@ -268,7 +307,7 @@ public class NamespaceSupport implements NamespaceContext {
     /**
      * @see com.sun.org.apache.xerces.internal.xni.NamespaceContext#getAllPrefixes()
      */
-    public Enumeration<String> getAllPrefixes() {
+    public Enumeration getAllPrefixes() {
         int count = 0;
         if (fPrefixes.length < (fNamespace.length/2)) {
             // resize prefix array
@@ -293,11 +332,11 @@ public class NamespaceSupport implements NamespaceContext {
         return new Prefixes(fPrefixes, count);
     }
 
-    public List<String> getPrefixes(String uri){
+    public  Vector getPrefixes(String uri){
         int count = 0;
         String prefix = null;
         boolean unique = true;
-        List<String> prefixList = new ArrayList<>();
+        Vector prefixList = new Vector();
         for (int i = fNamespaceSize; i >0 ; i -= 2) {
             if(fNamespace[i-1] == uri){
                 if(!prefixList.contains(fNamespace[i-2]))
@@ -353,7 +392,7 @@ public class NamespaceSupport implements NamespaceContext {
         return false;
     }
 
-    protected final class IteratorPrefixes implements Iterator<String>  {
+    protected final class IteratorPrefixes implements Iterator  {
         private String[] prefixes;
         private int counter = 0;
         private int size = 0;
@@ -376,7 +415,7 @@ public class NamespaceSupport implements NamespaceContext {
         /**
          * @see java.util.Enumeration#nextElement()
          */
-        public String next() {
+        public Object next() {
             if (counter< size){
                 return fPrefixes[counter++];
             }
@@ -384,7 +423,7 @@ public class NamespaceSupport implements NamespaceContext {
         }
 
         public String toString(){
-            StringBuilder buf = new StringBuilder();
+            StringBuffer buf = new StringBuffer();
             for (int i=0;i<size;i++){
                 buf.append(prefixes[i]);
                 buf.append(" ");
@@ -399,7 +438,7 @@ public class NamespaceSupport implements NamespaceContext {
     }
 
 
-    protected final class Prefixes implements Enumeration<String> {
+    protected final class Prefixes implements Enumeration {
         private String[] prefixes;
         private int counter = 0;
         private int size = 0;
@@ -422,7 +461,7 @@ public class NamespaceSupport implements NamespaceContext {
         /**
          * @see java.util.Enumeration#nextElement()
          */
-        public String nextElement() {
+        public Object nextElement() {
             if (counter< size){
                 return fPrefixes[counter++];
             }
@@ -430,7 +469,7 @@ public class NamespaceSupport implements NamespaceContext {
         }
 
         public String toString(){
-            StringBuilder buf = new StringBuilder();
+            StringBuffer buf = new StringBuffer();
             for (int i=0;i<size;i++){
                 buf.append(prefixes[i]);
                 buf.append(" ");

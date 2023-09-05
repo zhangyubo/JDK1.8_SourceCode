@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Dec 2019
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001-2006 The Apache Software Foundation.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,19 +17,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * $Id: KeyCall.java,v 1.7 2006/06/19 19:49:04 spericas Exp $
+ */
 
 package com.sun.org.apache.xalan.internal.xsltc.compiler;
 
+import java.util.Vector;
+
+import com.sun.org.apache.bcel.internal.generic.ALOAD;
+import com.sun.org.apache.bcel.internal.generic.ASTORE;
+import com.sun.org.apache.bcel.internal.generic.BranchHandle;
 import com.sun.org.apache.bcel.internal.generic.ConstantPoolGen;
+import com.sun.org.apache.bcel.internal.generic.GOTO;
+import com.sun.org.apache.bcel.internal.generic.IFGT;
+import com.sun.org.apache.bcel.internal.generic.INVOKEINTERFACE;
+import com.sun.org.apache.bcel.internal.generic.INVOKESPECIAL;
 import com.sun.org.apache.bcel.internal.generic.INVOKEVIRTUAL;
+import com.sun.org.apache.bcel.internal.generic.InstructionHandle;
 import com.sun.org.apache.bcel.internal.generic.InstructionList;
+import com.sun.org.apache.bcel.internal.generic.LocalVariableGen;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.org.apache.bcel.internal.generic.PUSH;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ClassGenerator;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MethodGenerator;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.StringType;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.TypeCheckError;
-import java.util.List;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Util;
 
 /**
  * @author Morten Jorgensen
@@ -70,7 +84,7 @@ final class KeyCall extends FunctionCall {
      * @param fname The function name (should be 'key' or 'id')
      * @param arguments A vector containing the arguments the the function
      */
-    public KeyCall(QName fname, List<Expression> arguments) {
+    public KeyCall(QName fname, Vector arguments) {
         super(fname, arguments);
         switch(argumentCount()) {
         case 1:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -39,10 +39,6 @@ public class KeyResolverException extends XMLSecurityException {
         super();
     }
 
-    public KeyResolverException(Exception ex) {
-        super(ex);
-    }
-
     /**
      * Constructor KeyResolverException
      *
@@ -65,31 +61,21 @@ public class KeyResolverException extends XMLSecurityException {
     /**
      * Constructor KeyResolverException
      *
-     * @param originalException
      * @param msgID
+     * @param originalException
      */
-    public KeyResolverException(Exception originalException, String msgID) {
-        super(originalException, msgID);
-    }
-
-    @Deprecated
     public KeyResolverException(String msgID, Exception originalException) {
-        this(originalException, msgID);
+        super(msgID, originalException);
     }
 
     /**
      * Constructor KeyResolverException
      *
-     * @param originalException
      * @param msgID
      * @param exArgs
+     * @param originalException
      */
-    public KeyResolverException(Exception originalException, String msgID, Object exArgs[]) {
-        super(originalException, msgID, exArgs);
-    }
-
-    @Deprecated
-    public KeyResolverException(String msgID, Object[] exArgs, Exception originalException) {
-        this(originalException, msgID, exArgs);
+    public KeyResolverException(String msgID, Object exArgs[], Exception originalException) {
+        super(msgID, exArgs, originalException);
     }
 }

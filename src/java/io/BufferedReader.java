@@ -310,7 +310,7 @@ public class BufferedReader extends Reader {
      * @exception  IOException  If an I/O error occurs
      */
     String readLine(boolean ignoreLF) throws IOException {
-        StringBuilder s = null;
+        StringBuffer s = null;
         int startChar;
 
         synchronized (lock) {
@@ -366,7 +366,7 @@ public class BufferedReader extends Reader {
                 }
 
                 if (s == null)
-                    s = new StringBuilder(defaultExpectedLineLength);
+                    s = new StringBuffer(defaultExpectedLineLength);
                 s.append(cb, startChar, i - startChar);
             }
         }

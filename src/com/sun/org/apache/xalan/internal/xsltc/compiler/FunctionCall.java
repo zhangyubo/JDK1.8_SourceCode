@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Dec 2019
+ * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -30,7 +29,7 @@ import com.sun.org.apache.bcel.internal.generic.INVOKEINTERFACE;
 import com.sun.org.apache.bcel.internal.generic.INVOKESPECIAL;
 import com.sun.org.apache.bcel.internal.generic.INVOKESTATIC;
 import com.sun.org.apache.bcel.internal.generic.INVOKEVIRTUAL;
-import com.sun.org.apache.bcel.internal.generic.InstructionConst;
+import com.sun.org.apache.bcel.internal.generic.InstructionConstants;
 import com.sun.org.apache.bcel.internal.generic.InstructionList;
 import com.sun.org.apache.bcel.internal.generic.InvokeInstruction;
 import com.sun.org.apache.bcel.internal.generic.LocalVariableGen;
@@ -51,12 +50,12 @@ import com.sun.org.apache.xalan.internal.xsltc.compiler.util.TypeCheckError;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Vector;
 import jdk.xml.internal.JdkXmlFeatures;
 
 /**
@@ -71,9 +70,9 @@ class FunctionCall extends Expression {
     // Name of this function call
     private QName  _fname;
     // Arguments to this function call (might not be any)
-    private final List<Expression> _arguments;
+    private final Vector _arguments;
     // Empty argument list, used for certain functions
-    private final static List<Expression> EMPTY_ARG_LIST = new ArrayList<>(0);
+    private final static Vector EMPTY_ARG_LIST = new Vector(0);
 
     // Valid namespaces for Java function-call extension
     protected final static String EXT_XSLTC =
@@ -125,9 +124,9 @@ class FunctionCall extends Expression {
 
     // External Java function's class/method/signature
     private String      _className;
-    private Class<?>    _clazz;
+    private Class       _clazz;
     private Method      _chosenMethod;
-    private Constructor<?> _chosenConstructor;
+    private Constructor _chosenConstructor;
     private MethodType  _chosenMethodType;
 
     // Encapsulates all unsupported external function calls
@@ -159,7 +158,7 @@ class FunctionCall extends Expression {
         public Class<?>  type;
         public int distance;
 
-        public JavaType(Class<?> type, int distance){
+        public JavaType(Class type, int distance){
             this.type = type;
             this.distance = distance;
         }
@@ -297,7 +296,7 @@ class FunctionCall extends Expression {
 
     }
 
-    public FunctionCall(QName fname, List<Expression> arguments) {
+    public FunctionCall(QName fname, Vector arguments) {
         _fname = fname;
         _arguments = arguments;
         _type = null;
@@ -317,7 +316,7 @@ class FunctionCall extends Expression {
         if (_arguments != null) {
             final int n = _arguments.size();
             for (int i = 0; i < n; i++) {
-                final Expression exp = _arguments.get(i);
+                final Expression exp = (Expression)_arguments.elementAt(i);
                 exp.setParser(parser);
                 exp.setParent(this);
             }
@@ -438,18 +437,18 @@ class FunctionCall extends Expression {
         _fname.clearNamespace();        // HACK!!!
 
         final int n = _arguments.size();
-        final List<Type> argsType = typeCheckArgs(stable);
+        final Vector argsType = typeCheckArgs(stable);
         final MethodType args = new MethodType(Type.Void, argsType);
         final MethodType ptype =
             lookupPrimop(stable, _fname.getLocalPart(), args);
 
         if (ptype != null) {
             for (int i = 0; i < n; i++) {
-                final Type argType = (Type) ptype.argsType().get(i);
-                final Expression exp = _arguments.get(i);
+                final Type argType = (Type) ptype.argsType().elementAt(i);
+                final Expression exp = (Expression)_arguments.elementAt(i);
                 if (!argType.identicalTo(exp.getType())) {
                     try {
-                        _arguments.set(i, new CastExpr(exp, argType));
+                        _arguments.setElementAt(new CastExpr(exp, argType), i);
                     }
                     catch (TypeCheckError e) {
                         throw new TypeCheckError(this); // invalid conversion
@@ -465,7 +464,7 @@ class FunctionCall extends Expression {
 
 
     public Type typeCheckConstructor(SymbolTable stable) throws TypeCheckError{
-        final List<Constructor<?>> constructors = findConstructors();
+        final Vector constructors = findConstructors();
         if (constructors == null) {
             // Constructor not found in this class
             throw new TypeCheckError(ErrorMsg.CONSTRUCTOR_NOT_FOUND,
@@ -475,22 +474,23 @@ class FunctionCall extends Expression {
 
         final int nConstructors = constructors.size();
         final int nArgs = _arguments.size();
-        final List<Type> argsType = typeCheckArgs(stable);
+        final Vector argsType = typeCheckArgs(stable);
 
         // Try all constructors
         int bestConstrDistance = Integer.MAX_VALUE;
         _type = null;                   // reset
         for (int j, i = 0; i < nConstructors; i++) {
             // Check if all parameters to this constructor can be converted
-            final Constructor<?> constructor = constructors.get(i);
-            final Class<?>[] paramTypes = constructor.getParameterTypes();
+            final Constructor constructor =
+                (Constructor)constructors.elementAt(i);
+            final Class[] paramTypes = constructor.getParameterTypes();
 
             Class<?> extType;
             int currConstrDistance = 0;
             for (j = 0; j < nArgs; j++) {
                 // Convert from internal (translet) type to external (Java) type
                 extType = paramTypes[j];
-                final Type intType = argsType.get(j);
+                final Type intType = (Type)argsType.elementAt(j);
                 JavaType match = _internal2Java.maps(intType, new JavaType(extType, 0));
                 if (match != null) {
                     currConstrDistance += match.distance;
@@ -558,7 +558,7 @@ class FunctionCall extends Expression {
                     || _namespace_format == NAMESPACE_FORMAT_PACKAGE)
                     hasThisArgument = true;
 
-                Expression firstArg = _arguments.get(0);
+                Expression firstArg = (Expression)_arguments.elementAt(0);
                 Type firstArgType = (Type)firstArg.typeCheck(stable);
 
                 if (_namespace_format == NAMESPACE_FORMAT_CLASS
@@ -568,7 +568,7 @@ class FunctionCall extends Expression {
                     hasThisArgument = true;
 
                 if (hasThisArgument) {
-                    _thisArgument = _arguments.get(0);
+                    _thisArgument = (Expression) _arguments.elementAt(0);
                     _arguments.remove(0); nArgs--;
                     if (firstArgType instanceof ObjectType) {
                         _className = ((ObjectType) firstArgType).getJavaClassName();
@@ -594,30 +594,30 @@ class FunctionCall extends Expression {
             }
         }
 
-        final List<Method> methods = findMethods();
+        final Vector methods = findMethods();
 
         if (methods == null) {
             // Method not found in this class
             throw new TypeCheckError(ErrorMsg.METHOD_NOT_FOUND_ERR, _className + "." + name);
         }
 
-        Class<?> extType = null;
+        Class extType = null;
         final int nMethods = methods.size();
-        final List<Type> argsType = typeCheckArgs(stable);
+        final Vector argsType = typeCheckArgs(stable);
 
         // Try all methods to identify the best fit
         int bestMethodDistance  = Integer.MAX_VALUE;
         _type = null;                       // reset internal type
         for (int j, i = 0; i < nMethods; i++) {
             // Check if all paramteters to this method can be converted
-            final Method method = (Method)methods.get(i);
-            final Class<?>[] paramTypes = method.getParameterTypes();
+            final Method method = (Method)methods.elementAt(i);
+            final Class[] paramTypes = method.getParameterTypes();
 
             int currMethodDistance = 0;
             for (j = 0; j < nArgs; j++) {
                 // Convert from internal (translet) type to external (Java) type
                 extType = paramTypes[j];
-                final Type intType = argsType.get(j);
+                final Type intType = (Type)argsType.elementAt(j);
                 JavaType match = _internal2Java.maps(intType, new JavaType(extType, 0));
                 if (match != null) {
                     currMethodDistance += match.distance;
@@ -685,16 +685,18 @@ class FunctionCall extends Expression {
     /**
      * Type check the actual arguments of this function call.
      */
-    public List<Type> typeCheckArgs(SymbolTable stable) throws TypeCheckError {
-        final List<Type> result = new ArrayList<>();
-        for (Expression exp : _arguments) {
-            result.add(exp.typeCheck(stable));
+    public Vector typeCheckArgs(SymbolTable stable) throws TypeCheckError {
+        final Vector result = new Vector();
+        final Enumeration e = _arguments.elements();
+        while (e.hasMoreElements()) {
+            final Expression exp = (Expression)e.nextElement();
+            result.addElement(exp.typeCheck(stable));
         }
         return result;
     }
 
     protected final Expression argument(int i) {
-        return _arguments.get(i);
+        return (Expression)_arguments.elementAt(i);
     }
 
     protected final Expression argument() {
@@ -706,7 +708,7 @@ class FunctionCall extends Expression {
     }
 
     protected final void setArgument(int i, Expression exp) {
-        _arguments.set(i, exp);
+        _arguments.setElementAt(exp, i);
     }
 
     /**
@@ -819,7 +821,7 @@ class FunctionCall extends Expression {
             }
 
             il.append(new NEW(cpg.addClass(_className)));
-            il.append(InstructionConst.DUP);
+            il.append(InstructionConstants.DUP);
 
             for (int i = 0; i < n; i++) {
                 final Expression arg = argument(i);
@@ -851,7 +853,7 @@ class FunctionCall extends Expression {
                 translateUnallowedExtension(cpg, il);
 
             final String clazz = _chosenMethod.getDeclaringClass().getName();
-            Class<?>[] paramTypes = _chosenMethod.getParameterTypes();
+            Class[] paramTypes = _chosenMethod.getParameterTypes();
 
             // Push "this" if it is an instance method
             if (_thisArgument != null) {
@@ -914,9 +916,9 @@ class FunctionCall extends Expression {
      * after stripping its namespace or <code>null</code>
      * if no such methods exist.
      */
-    private List<Method> findMethods() {
+    private Vector findMethods() {
 
-          List<Method> result = null;
+          Vector result = null;
           final String namespace = _fname.getNamespace();
 
           if (_className != null && _className.length() > 0) {
@@ -957,9 +959,9 @@ class FunctionCall extends Expression {
                     && methods[i].getParameterTypes().length == nArgs)
                 {
                   if (result == null) {
-                    result = new ArrayList<>();
+                    result = new Vector();
                   }
-                  result.add(methods[i]);
+                  result.addElement(methods[i]);
                 }
               }
             }
@@ -976,8 +978,9 @@ class FunctionCall extends Expression {
      * after stripping its namespace or <code>null</code>
      * if no such methods exist.
      */
-    private List<Constructor<?>> findConstructors() {
-        List<Constructor<?>> result = null;
+    private Vector findConstructors() {
+        Vector result = null;
+        final String namespace = _fname.getNamespace();
 
         final int nArgs = _arguments.size();
         try {
@@ -990,17 +993,20 @@ class FunctionCall extends Expression {
             }
           }
 
-          final Constructor<?>[] constructors = _clazz.getConstructors();
+          final Constructor[] constructors = _clazz.getConstructors();
 
-            for (Constructor<?> constructor : constructors) {
-                final int mods = constructor.getModifiers();
-                // Is it public, static and same number of args ?
-                if (Modifier.isPublic(mods) && constructor.getParameterTypes().length == nArgs) {
-                    if (result == null) {
-                        result = new ArrayList<>();
-                    }   result.add(constructor);
+          for (int i = 0; i < constructors.length; i++) {
+              final int mods = constructors[i].getModifiers();
+              // Is it public, static and same number of args ?
+              if (Modifier.isPublic(mods) &&
+                  constructors[i].getParameterTypes().length == nArgs)
+              {
+                if (result == null) {
+                  result = new Vector();
                 }
-            }
+                result.addElement(constructors[i]);
+              }
+          }
         }
         catch (ClassNotFoundException e) {
           final ErrorMsg msg = new ErrorMsg(ErrorMsg.CLASS_NOT_FOUND_ERR, _className);
@@ -1014,10 +1020,10 @@ class FunctionCall extends Expression {
     /**
      * Compute the JVM signature for the class.
      */
-    static final String getSignature(Class<?> clazz) {
+    static final String getSignature(Class clazz) {
         if (clazz.isArray()) {
             final StringBuffer sb = new StringBuffer();
-            Class<?> cl = clazz;
+            Class cl = clazz;
             while (cl.isArray()) {
                 sb.append("[");
                 cl = cl.getComponentType();
@@ -1070,7 +1076,7 @@ class FunctionCall extends Expression {
     static final String getSignature(Method meth) {
         final StringBuffer sb = new StringBuffer();
         sb.append('(');
-        final Class<?>[] params = meth.getParameterTypes(); // avoid clone
+        final Class[] params = meth.getParameterTypes(); // avoid clone
         for (int j = 0; j < params.length; j++) {
             sb.append(getSignature(params[j]));
         }
@@ -1081,10 +1087,10 @@ class FunctionCall extends Expression {
     /**
      * Compute the JVM constructor descriptor for the constructor.
      */
-    static final String getSignature(Constructor<?> cons) {
+    static final String getSignature(Constructor cons) {
         final StringBuffer sb = new StringBuffer();
         sb.append('(');
-        final Class<?>[] params = cons.getParameterTypes(); // avoid clone
+        final Class[] params = cons.getParameterTypes(); // avoid clone
         for (int j = 0; j < params.length; j++) {
             sb.append(getSignature(params[j]));
         }
@@ -1094,13 +1100,13 @@ class FunctionCall extends Expression {
     /**
      * Return the signature of the current method
      */
-    private String getMethodSignature(List<Type> argsType) {
+    private String getMethodSignature(Vector argsType) {
         final StringBuffer buf = new StringBuffer(_className);
         buf.append('.').append(_fname.getLocalPart()).append('(');
 
         int nArgs = argsType.size();
         for (int i = 0; i < nArgs; i++) {
-            final Type intType = argsType.get(i);
+            final Type intType = (Type)argsType.elementAt(i);
             buf.append(intType.toString());
             if (i < nArgs - 1) buf.append(", ");
         }

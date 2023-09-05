@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -110,27 +110,27 @@ public final class REUtil {
     }
 
     static final String createOptionString(int options) {
-        StringBuilder sb = new StringBuilder(9);
+        StringBuffer sb = new StringBuffer(9);
         if ((options & RegularExpression.PROHIBIT_FIXED_STRING_OPTIMIZATION) != 0)
-            sb.append('F');
+            sb.append((char)'F');
         if ((options & RegularExpression.PROHIBIT_HEAD_CHARACTER_OPTIMIZATION) != 0)
-            sb.append('H');
+            sb.append((char)'H');
         if ((options & RegularExpression.XMLSCHEMA_MODE) != 0)
-            sb.append('X');
+            sb.append((char)'X');
         if ((options & RegularExpression.IGNORE_CASE) != 0)
-            sb.append('i');
+            sb.append((char)'i');
         if ((options & RegularExpression.MULTIPLE_LINES) != 0)
-            sb.append('m');
+            sb.append((char)'m');
         if ((options & RegularExpression.SINGLE_LINE) != 0)
-            sb.append('s');
+            sb.append((char)'s');
         if ((options & RegularExpression.USE_UNICODE_CATEGORY) != 0)
-            sb.append('u');
+            sb.append((char)'u');
         if ((options & RegularExpression.UNICODE_WORD_BOUNDARY) != 0)
-            sb.append('w');
+            sb.append((char)'w');
         if ((options & RegularExpression.EXTENDED_COMMENT) != 0)
-            sb.append('x');
+            sb.append((char)'x');
         if ((options & RegularExpression.SPECIAL_COMMA) != 0)
-            sb.append(',');
+            sb.append((char)',');
         return sb.toString().intern();
     }
 
@@ -138,19 +138,13 @@ public final class REUtil {
 
     static String stripExtendedComment(String regex) {
         int len = regex.length();
-        StringBuilder buffer = new StringBuilder(len);
+        StringBuffer buffer = new StringBuffer(len);
         int offset = 0;
-        int charClass = 0;
         while (offset < len) {
             int ch = regex.charAt(offset++);
                                                 // Skips a white space.
-            if (ch == '\t' || ch == '\n' || ch == '\f' || ch == '\r' || ch == ' ') {
-                // if we are inside a character class, we keep the white space
-                if (charClass > 0) {
-                    buffer.append((char)ch);
-                }
+            if (ch == '\t' || ch == '\n' || ch == '\f' || ch == '\r' || ch == ' ')
                 continue;
-            }
 
             if (ch == '#') {                    // Skips chracters between '#' and a line end.
                 while (offset < len) {
@@ -169,36 +163,12 @@ public final class REUtil {
                     buffer.append((char)next);
                     offset ++;
                 } else {                        // Other escaped character.
-                    buffer.append('\\');
+                    buffer.append((char)'\\');
                     buffer.append((char)next);
                     offset ++;
                 }
-            }
-            else if (ch == '[') {
-                charClass++;
+            } else                              // As is.
                 buffer.append((char)ch);
-                if (offset < len) {
-                    next = regex.charAt(offset);
-                    if (next == '[' || next ==']') {
-                        buffer.append((char)next);
-                        offset ++;
-                    }
-                    else if (next == '^' && offset + 1 < len) {
-                        next = regex.charAt(offset + 1);
-                        if (next == '[' || next ==']') {
-                            buffer.append('^');
-                            buffer.append((char)next);
-                            offset += 2;
-                        }
-                    }
-                }
-            }
-            else {
-                if (charClass > 0 && ch == ']') {
-                    --charClass;
-                }
-                buffer.append((char)ch);
-            }
         }
         return buffer.toString();
     }
@@ -337,15 +307,15 @@ public final class REUtil {
      */
     public static String quoteMeta(String literal) {
         int len = literal.length();
-        StringBuilder buffer = null;
+        StringBuffer buffer = null;
         for (int i = 0;  i < len;  i ++) {
             int ch = literal.charAt(i);
             if (".*+?{[()|\\^$".indexOf(ch) >= 0) {
                 if (buffer == null) {
-                    buffer = new StringBuilder(i+(len-i)*2);
+                    buffer = new StringBuffer(i+(len-i)*2);
                     if (i > 0)  buffer.append(literal.substring(0, i));
                 }
-                buffer.append('\\');
+                buffer.append((char)'\\');
                 buffer.append((char)ch);
             } else if (buffer != null)
                 buffer.append((char)ch);

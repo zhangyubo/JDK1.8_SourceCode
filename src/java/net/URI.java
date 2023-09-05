@@ -1950,6 +1950,7 @@ public final class URI
         StringBuffer sb = new StringBuffer();
         appendSchemeSpecificPart(sb, null, getAuthority(), getUserInfo(),
                                  host, port, getPath(), getQuery());
+        if (sb.length() == 0) return;
         schemeSpecificPart = sb.toString();
     }
 

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the  "License");
+ * Copyright 2001-2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -44,7 +43,6 @@ import org.xml.sax.SAXException;
  * because it is used from another package.
  *
  * @xsl.usage internal
- * @LastModified: Sept 2018
  */
 public final class ToHTMLStream extends ToStream
 {
@@ -351,84 +349,84 @@ public final class ToHTMLStream extends ToStream
 
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("a");
+        elemDesc = (ElemDesc) m_elementFlags.get("A");
         elemDesc.setAttr("HREF", ElemDesc.ATTRURL);
         elemDesc.setAttr("NAME", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("area");
+        elemDesc = (ElemDesc) m_elementFlags.get("AREA");
         elemDesc.setAttr("HREF", ElemDesc.ATTRURL);
         elemDesc.setAttr("NOHREF", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("base");
+        elemDesc = (ElemDesc) m_elementFlags.get("BASE");
         elemDesc.setAttr("HREF", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("button");
+        elemDesc = (ElemDesc) m_elementFlags.get("BUTTON");
         elemDesc.setAttr("DISABLED", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("blockquote");
+        elemDesc = (ElemDesc) m_elementFlags.get("BLOCKQUOTE");
         elemDesc.setAttr("CITE", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("del");
+        elemDesc = (ElemDesc) m_elementFlags.get("DEL");
         elemDesc.setAttr("CITE", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("dir");
+        elemDesc = (ElemDesc) m_elementFlags.get("DIR");
         elemDesc.setAttr("COMPACT", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
 
-        elemDesc = (ElemDesc) m_elementFlags.get("div");
+        elemDesc = (ElemDesc) m_elementFlags.get("DIV");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL); // Netscape 4 extension
         elemDesc.setAttr("NOWRAP", ElemDesc.ATTREMPTY); // Internet-Explorer extension
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("dl");
+        elemDesc = (ElemDesc) m_elementFlags.get("DL");
         elemDesc.setAttr("COMPACT", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("form");
+        elemDesc = (ElemDesc) m_elementFlags.get("FORM");
         elemDesc.setAttr("ACTION", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
         // Attribution to: "Voytenko, Dimitry" <DVoytenko@SECTORBASE.COM>
-        elemDesc = (ElemDesc) m_elementFlags.get("frame");
+        elemDesc = (ElemDesc) m_elementFlags.get("FRAME");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
         elemDesc.setAttr("LONGDESC", ElemDesc.ATTRURL);
         elemDesc.setAttr("NORESIZE",ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("head");
+        elemDesc = (ElemDesc) m_elementFlags.get("HEAD");
         elemDesc.setAttr("PROFILE", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("hr");
+        elemDesc = (ElemDesc) m_elementFlags.get("HR");
         elemDesc.setAttr("NOSHADE", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
         // HTML 4.0, section 16.5
-        elemDesc = (ElemDesc) m_elementFlags.get("iframe");
+        elemDesc = (ElemDesc) m_elementFlags.get("IFRAME");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
         elemDesc.setAttr("LONGDESC", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
         // Netscape 4 extension
-        elemDesc = (ElemDesc) m_elementFlags.get("ilayer");
+        elemDesc = (ElemDesc) m_elementFlags.get("ILAYER");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("img");
+        elemDesc = (ElemDesc) m_elementFlags.get("IMG");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
         elemDesc.setAttr("LONGDESC", ElemDesc.ATTRURL);
         elemDesc.setAttr("USEMAP", ElemDesc.ATTRURL);
         elemDesc.setAttr("ISMAP", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("input");
+        elemDesc = (ElemDesc) m_elementFlags.get("INPUT");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
         elemDesc.setAttr("USEMAP", ElemDesc.ATTRURL);
         elemDesc.setAttr("CHECKED", ElemDesc.ATTREMPTY);
@@ -437,24 +435,24 @@ public final class ToHTMLStream extends ToStream
         elemDesc.setAttr("READONLY", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("ins");
+        elemDesc = (ElemDesc) m_elementFlags.get("INS");
         elemDesc.setAttr("CITE", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
         // Netscape 4 extension
-        elemDesc = (ElemDesc) m_elementFlags.get("layer");
+        elemDesc = (ElemDesc) m_elementFlags.get("LAYER");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("link");
+        elemDesc = (ElemDesc) m_elementFlags.get("LINK");
         elemDesc.setAttr("HREF", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("menu");
+        elemDesc = (ElemDesc) m_elementFlags.get("MENU");
         elemDesc.setAttr("COMPACT", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("object");
+        elemDesc = (ElemDesc) m_elementFlags.get("OBJECT");
         elemDesc.setAttr("CLASSID", ElemDesc.ATTRURL);
         elemDesc.setAttr("CODEBASE", ElemDesc.ATTRURL);
         elemDesc.setAttr("DATA", ElemDesc.ATTRURL);
@@ -463,58 +461,58 @@ public final class ToHTMLStream extends ToStream
         elemDesc.setAttr("DECLARE", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("ol");
+        elemDesc = (ElemDesc) m_elementFlags.get("OL");
         elemDesc.setAttr("COMPACT", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("optgroup");
+        elemDesc = (ElemDesc) m_elementFlags.get("OPTGROUP");
         elemDesc.setAttr("DISABLED", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("option");
+        elemDesc = (ElemDesc) m_elementFlags.get("OPTION");
         elemDesc.setAttr("SELECTED", ElemDesc.ATTREMPTY);
         elemDesc.setAttr("DISABLED", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("q");
+        elemDesc = (ElemDesc) m_elementFlags.get("Q");
         elemDesc.setAttr("CITE", ElemDesc.ATTRURL);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("script");
+        elemDesc = (ElemDesc) m_elementFlags.get("SCRIPT");
         elemDesc.setAttr("SRC", ElemDesc.ATTRURL);
         elemDesc.setAttr("FOR", ElemDesc.ATTRURL);
         elemDesc.setAttr("DEFER", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("select");
+        elemDesc = (ElemDesc) m_elementFlags.get("SELECT");
         elemDesc.setAttr("DISABLED", ElemDesc.ATTREMPTY);
         elemDesc.setAttr("MULTIPLE", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("table");
+        elemDesc = (ElemDesc) m_elementFlags.get("TABLE");
         elemDesc.setAttr("NOWRAP", ElemDesc.ATTREMPTY); // Internet-Explorer extension
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("td");
+        elemDesc = (ElemDesc) m_elementFlags.get("TD");
         elemDesc.setAttr("NOWRAP", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("textarea");
+        elemDesc = (ElemDesc) m_elementFlags.get("TEXTAREA");
         elemDesc.setAttr("DISABLED", ElemDesc.ATTREMPTY);
         elemDesc.setAttr("READONLY", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("th");
+        elemDesc = (ElemDesc) m_elementFlags.get("TH");
         elemDesc.setAttr("NOWRAP", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
         // The nowrap attribute of a tr element is both
         // a Netscape and Internet-Explorer extension
-        elemDesc = (ElemDesc) m_elementFlags.get("tr");
+        elemDesc = (ElemDesc) m_elementFlags.get("TR");
         elemDesc.setAttr("NOWRAP", ElemDesc.ATTREMPTY);
 
         // ----------------------------------------------
-        elemDesc = (ElemDesc) m_elementFlags.get("ul");
+        elemDesc = (ElemDesc) m_elementFlags.get("UL");
         elemDesc.setAttr("COMPACT", ElemDesc.ATTREMPTY);
     }
 
@@ -1023,7 +1021,7 @@ public final class ToHTMLStream extends ToStream
         String name,
         String value,
         ElemDesc elemDesc)
-        throws IOException, SAXException
+        throws IOException
     {
         writer.write(' ');
 
@@ -1347,7 +1345,7 @@ public final class ToHTMLStream extends ToStream
      */
     public void writeAttrString(
         final java.io.Writer writer, String string, String encoding)
-        throws IOException, SAXException
+        throws IOException
     {
         final int end = string.length();
         if (end > m_attrBuff.length)
@@ -1399,16 +1397,13 @@ public final class ToHTMLStream extends ToStream
                 }
                 else
                 {
-                    if (Encodings.isHighUTF16Surrogate(ch) ||
-                            Encodings.isLowUTF16Surrogate(ch))
+                    if (Encodings.isHighUTF16Surrogate(ch))
                     {
-                        if (writeUTF16Surrogate(ch, chars, i, end) >= 0) {
-                            // move the index if the low surrogate is consumed
-                            // as writeUTF16Surrogate has written the pair
-                            if (Encodings.isHighUTF16Surrogate(ch)) {
-                                i++;
-                            }
-                        }
+
+                            writeUTF16Surrogate(ch, chars, i, end);
+                            i++; // two input characters processed
+                                 // this increments by one and the for()
+                                 // loop itself increments by another one.
                     }
 
                     // The next is kind of a hack to keep from escaping in the case
@@ -1767,7 +1762,7 @@ public final class ToHTMLStream extends ToStream
              * lets determine if the current element is specified in the cdata-
              * section-elements list.
              */
-            if (m_StringOfCDATASections != null)
+            if (m_cdataSectionElements != null)
                 m_elemContext.m_isCdataSection = isCdataSection();
             if (m_doIndent)
             {
@@ -1781,7 +1776,54 @@ public final class ToHTMLStream extends ToStream
                 throw new SAXException(e);
             }
     }
+    /**
+     * Initialize the serializer with the specified output stream and output
+     * format. Must be called before calling any of the serialize methods.
+     *
+     * @param output The output stream to use
+     * @param format The output format
+     * @throws UnsupportedEncodingException The encoding specified   in the
+     * output format is not supported
+     */
+    protected synchronized void init(OutputStream output, Properties format)
+        throws UnsupportedEncodingException
+    {
+        if (null == format)
+        {
+            format = OutputPropertiesFactory.getDefaultMethodProperties(Method.HTML);
+         }
+        super.init(output,format, false);
+    }
 
+        /**
+         * Specifies an output stream to which the document should be
+         * serialized. This method should not be called while the
+         * serializer is in the process of serializing a document.
+         * <p>
+         * The encoding specified in the output properties is used, or
+         * if no encoding was specified, the default for the selected
+         * output method.
+         *
+         * @param output The output stream
+         */
+        public void setOutputStream(OutputStream output)
+        {
+
+            try
+            {
+                Properties format;
+                if (null == m_format)
+                    format = OutputPropertiesFactory.getDefaultMethodProperties(Method.HTML);
+                else
+                    format = m_format;
+                init(output, format, true);
+            }
+            catch (UnsupportedEncodingException uee)
+            {
+
+                // Should have been warned in init, I guess...
+            }
+        }
         /**
          * This method is used when a prefix/uri namespace mapping
          * is indicated after the element was started with a

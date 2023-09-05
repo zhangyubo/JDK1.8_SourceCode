@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Oct 2017
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2004 The Apache Software Foundation.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,10 +20,9 @@
 
 package com.sun.org.apache.xerces.internal.dom;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.w3c.dom.DOMImplementation;
+import java.util.Vector;
 import org.w3c.dom.DOMImplementationList;
+import org.w3c.dom.DOMImplementation;
 
 /**
  * <p>This class implements the DOM Level 3 Core interface DOMImplementationList.</p>
@@ -37,19 +35,19 @@ import org.w3c.dom.DOMImplementationList;
 public class DOMImplementationListImpl implements DOMImplementationList {
 
     //A collection of DOMImplementations
-    private List<DOMImplementation> fImplementations;
+    private Vector fImplementations;
 
     /**
      * Construct an empty list of DOMImplementations
      */
     public DOMImplementationListImpl() {
-        fImplementations = new ArrayList<>();
+        fImplementations = new Vector();
     }
 
     /**
      * Construct an empty list of DOMImplementations
      */
-    public DOMImplementationListImpl(List<DOMImplementation> params) {
+    public DOMImplementationListImpl(Vector params) {
         fImplementations = params;
     }
 
@@ -60,8 +58,8 @@ public class DOMImplementationListImpl implements DOMImplementationList {
      */
     public DOMImplementation item(int index) {
         try {
-            return fImplementations.get(index);
-        } catch (IndexOutOfBoundsException e) {
+            return (DOMImplementation) fImplementations.elementAt(index);
+        } catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
     }

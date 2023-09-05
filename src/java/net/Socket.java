@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -24,8 +24,6 @@
  */
 
 package java.net;
-
-import sun.security.util.SecurityConstants;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -143,7 +141,7 @@ class Socket implements java.io.Closeable {
         } else {
             if (p == Proxy.NO_PROXY) {
                 if (factory == null) {
-                    impl = new PlainSocketImpl(false);
+                    impl = new PlainSocketImpl();
                     impl.setSocket(this);
                 } else
                     setImpl();
@@ -164,26 +162,11 @@ class Socket implements java.io.Closeable {
      * @since   JDK1.1
      */
     protected Socket(SocketImpl impl) throws SocketException {
-        this(checkPermission(impl), impl);
-    }
-
-    private Socket(Void ignore, SocketImpl impl) {
+        this.impl = impl;
         if (impl != null) {
-            this.impl = impl;
             checkOldImpl();
-            impl.setSocket(this);
+            this.impl.setSocket(this);
         }
-    }
-
-    private static Void checkPermission(SocketImpl impl) {
-        if (impl == null) {
-            return null;
-        }
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            sm.checkPermission(SecurityConstants.SET_SOCKETIMPL_PERMISSION);
-        }
-        return null;
     }
 
     /**

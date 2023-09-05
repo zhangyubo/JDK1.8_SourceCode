@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -32,41 +32,27 @@ import java.util.Locale;
 
 /**
  * The {@code Character} class wraps a value of the primitive
- * type {@code char} in an object. An object of class
+ * type {@code char} in an object. An object of type
  * {@code Character} contains a single field whose type is
  * {@code char}.
  * <p>
- * In addition, this class provides a large number of static methods for
- * determining a character's category (lowercase letter, digit, etc.)
- * and for converting characters from uppercase to lowercase and vice
- * versa.
- *
- * <h3><a id="conformance">Unicode Conformance</a></h3>
+ * In addition, this class provides several methods for determining
+ * a character's category (lowercase letter, digit, etc.) and for converting
+ * characters from uppercase to lowercase and vice versa.
  * <p>
- * The fields and methods of class {@code Character} are defined in terms
- * of character information from the Unicode Standard, specifically the
- * <i>UnicodeData</i> file that is part of the Unicode Character Database.
- * This file specifies properties including name and category for every
- * assigned Unicode code point or character range. The file is available
- * from the Unicode Consortium at
- * <a href="http://www.unicode.org">http://www.unicode.org</a>.
+ * Character information is based on the Unicode Standard, version 6.2.0.
  * <p>
- * The Java SE 8 Platform uses character information from version 6.2
- * of the Unicode Standard, with two extensions. First, the Java SE 8 Platform
- * allows an implementation of class {@code Character} to use the Japanese Era
- * code point, {@code U+32FF}, from the first version of the Unicode Standard
- * after 6.2 that assigns the code point. Second, in recognition of the fact
- * that new currencies appear frequently, the Java SE 8 Platform allows an
- * implementation of class {@code Character} to use the Currency Symbols
- * block from version 10.0 of the Unicode Standard. Consequently, the
- * behavior of fields and methods of class {@code Character} may vary across
- * implementations of the Java SE 8 Platform when processing the aforementioned
- * code points ( outside of version 6.2 ), except for the following methods
- * that define Java identifiers:
- * {@link #isJavaIdentifierStart(int)}, {@link #isJavaIdentifierStart(char)},
- * {@link #isJavaIdentifierPart(int)}, and {@link #isJavaIdentifierPart(char)}.
- * Code points in Java identifiers must be drawn from version 6.2 of
- * the Unicode Standard.
+ * The methods and data of class {@code Character} are defined by
+ * the information in the <i>UnicodeData</i> file that is part of the
+ * Unicode Character Database maintained by the Unicode
+ * Consortium. This file specifies various properties including name
+ * and general category for every defined Unicode code point or
+ * character range.
+ * <p>
+ * The file and its description are available from the Unicode Consortium at:
+ * <ul>
+ * <li><a href="http://www.unicode.org">http://www.unicode.org</a>
+ * </ul>
  *
  * <h3><a name="unicode">Unicode Character Representations</a></h3>
  *
@@ -3928,9 +3914,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
             0x3220,   // 3220..325F; COMMON
             0x3260,   // 3260..327E; HANGUL
             0x327F,   // 327F..32CF; COMMON
-            0x32D0,   // 32D0..32FE; KATAKANA
-            0x32FF,   // 32FF      ; COMMON
-            0x3300,   // 3300..3357; KATAKANA
+            0x32D0,   // 32D0..3357; KATAKANA
             0x3358,   // 3358..33FF; COMMON
             0x3400,   // 3400..4DBF; HAN
             0x4DC0,   // 4DC0..4DFF; COMMON
@@ -4251,9 +4235,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
             COMMON,
             HANGUL,
             COMMON,
-            KATAKANA,  // 32D0..32FE
-            COMMON,    // 32FF
-            KATAKANA,  // 3300..3357
+            KATAKANA,
             COMMON,
             HAN,
             COMMON,
@@ -5877,16 +5859,13 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * character in a Java identifier.
      * <p>
      * A character may start a Java identifier if and only if
-     * one of the following conditions is true:
+     * one of the following is true:
      * <ul>
      * <li> {@link #isLetter(char) isLetter(ch)} returns {@code true}
      * <li> {@link #getType(char) getType(ch)} returns {@code LETTER_NUMBER}
      * <li> {@code ch} is a currency symbol (such as {@code '$'})
      * <li> {@code ch} is a connecting punctuation character (such as {@code '_'}).
      * </ul>
-     *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
      *
      * @param   ch the character to be tested.
      * @return  {@code true} if the character may start a Java
@@ -5910,7 +5889,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * identifier as other than the first character.
      * <p>
      * A character may be part of a Java identifier if and only if any
-     * of the following conditions are true:
+     * of the following are true:
      * <ul>
      * <li>  it is a letter
      * <li>  it is a currency symbol (such as {@code '$'})
@@ -5922,9 +5901,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * <li> {@code isIdentifierIgnorable} returns
      * {@code true} for the character.
      * </ul>
-     *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
      *
      * @param   ch the character to be tested.
      * @return  {@code true} if the character may be part of a
@@ -6003,9 +5979,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * <li> {@code ch} is a connecting punctuation character (such as {@code '_'}).
      * </ul>
      *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
-     *
      * <p><b>Note:</b> This method cannot handle <a
      * href="#supplementary"> supplementary characters</a>. To support
      * all Unicode characters, including supplementary characters, use
@@ -6040,9 +6013,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
      *      (such as {@code '_'}).
      * </ul>
      *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
-     *
      * @param   codePoint the character (Unicode code point) to be tested.
      * @return  {@code true} if the character may start a Java identifier;
      *          {@code false} otherwise.
@@ -6061,7 +6031,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * identifier as other than the first character.
      * <p>
      * A character may be part of a Java identifier if any of the following
-     * conditions are true:
+     * are true:
      * <ul>
      * <li>  it is a letter
      * <li>  it is a currency symbol (such as {@code '$'})
@@ -6073,9 +6043,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * <li> {@code isIdentifierIgnorable} returns
      * {@code true} for the character
      * </ul>
-     *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
      *
      * <p><b>Note:</b> This method cannot handle <a
      * href="#supplementary"> supplementary characters</a>. To support
@@ -6101,7 +6068,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * identifier as other than the first character.
      * <p>
      * A character may be part of a Java identifier if any of the following
-     * conditions are true:
+     * are true:
      * <ul>
      * <li>  it is a letter
      * <li>  it is a currency symbol (such as {@code '$'})
@@ -6112,11 +6079,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * <li>  it is a non-spacing mark
      * <li> {@link #isIdentifierIgnorable(int)
      * isIdentifierIgnorable(codePoint)} returns {@code true} for
-     * the code point
+     * the character
      * </ul>
-     *
-     * These conditions are tested against the character information from version
-     * 6.2 of the Unicode Standard.
      *
      * @param   codePoint the character (Unicode code point) to be tested.
      * @return {@code true} if the character may be part of a

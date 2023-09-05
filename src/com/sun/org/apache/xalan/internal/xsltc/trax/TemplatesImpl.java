@@ -36,7 +36,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -453,8 +452,7 @@ public final class TemplatesImpl implements Templates, Serializable {
 
             // The translet needs to keep a reference to all its auxiliary
             // class to prevent the GC from collecting them
-            AbstractTranslet translet = (AbstractTranslet)
-                    _class[_transletIndex].getConstructor().newInstance();
+            AbstractTranslet translet = (AbstractTranslet) _class[_transletIndex].newInstance();
             translet.postInitialization();
             translet.setTemplates(this);
             translet.setOverrideDefaultParser(_overrideDefaultParser);
@@ -465,10 +463,13 @@ public final class TemplatesImpl implements Templates, Serializable {
 
             return translet;
         }
-        catch (InstantiationException | IllegalAccessException |
-                NoSuchMethodException | InvocationTargetException e) {
+        catch (InstantiationException e) {
             ErrorMsg err = new ErrorMsg(ErrorMsg.TRANSLET_OBJECT_ERR, _name);
-            throw new TransformerConfigurationException(err.toString(), e);
+            throw new TransformerConfigurationException(err.toString());
+        }
+        catch (IllegalAccessException e) {
+            ErrorMsg err = new ErrorMsg(ErrorMsg.TRANSLET_OBJECT_ERR, _name);
+            throw new TransformerConfigurationException(err.toString());
         }
     }
 

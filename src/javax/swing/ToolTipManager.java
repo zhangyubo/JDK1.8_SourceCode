@@ -28,8 +28,6 @@ package javax.swing;
 
 import java.awt.event.*;
 import java.awt.*;
-import javax.swing.event.MenuKeyEvent;
-import javax.swing.event.MenuKeyListener;
 
 /**
  * Manages all the <code>ToolTips</code> in the system.
@@ -411,14 +409,8 @@ public class ToolTipManager extends MouseAdapter implements MouseMotionListener 
         component.addMouseListener(this);
         component.removeMouseMotionListener(moveBeforeEnterListener);
         component.addMouseMotionListener(moveBeforeEnterListener);
-        // use MenuKeyListener for menu items/elements
-        if (component instanceof JMenuItem) {
-            ((JMenuItem) component).removeMenuKeyListener((MenuKeyListener) accessibilityKeyListener);
-            ((JMenuItem) component).addMenuKeyListener((MenuKeyListener) accessibilityKeyListener);
-        } else {
-            component.removeKeyListener(accessibilityKeyListener);
-            component.addKeyListener(accessibilityKeyListener);
-        }
+        component.removeKeyListener(accessibilityKeyListener);
+        component.addKeyListener(accessibilityKeyListener);
     }
 
     /**
@@ -429,11 +421,7 @@ public class ToolTipManager extends MouseAdapter implements MouseMotionListener 
     public void unregisterComponent(JComponent component) {
         component.removeMouseListener(this);
         component.removeMouseMotionListener(moveBeforeEnterListener);
-        if (component instanceof JMenuItem) {
-            ((JMenuItem) component).removeMenuKeyListener((MenuKeyListener) accessibilityKeyListener);
-        } else {
-            component.removeKeyListener(accessibilityKeyListener);
-        }
+        component.removeKeyListener(accessibilityKeyListener);
     }
 
     // implements java.awt.event.MouseListener
@@ -853,7 +841,7 @@ public class ToolTipManager extends MouseAdapter implements MouseMotionListener 
      * Post Tip: Ctrl+F1
      * Unpost Tip: Esc and Ctrl+F1
      */
-    private class AccessibilityKeyListener extends KeyAdapter implements MenuKeyListener {
+    private class AccessibilityKeyListener extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
             if (!e.isConsumed()) {
                 JComponent source = (JComponent) e.getComponent();
@@ -870,32 +858,5 @@ public class ToolTipManager extends MouseAdapter implements MouseMotionListener 
                 }
             }
         }
-
-        @Override
-        public void menuKeyTyped(MenuKeyEvent e) {}
-
-        @Override
-        public void menuKeyPressed(MenuKeyEvent e) {
-            if (postTip.equals(KeyStroke.getKeyStrokeForEvent(e))) {
-                // get element for the event
-                MenuElement path[] = e.getPath();
-                MenuElement element = path[path.length - 1];
-
-                // retrieve currently highlighted element
-                MenuSelectionManager msm = e.getMenuSelectionManager();
-                MenuElement selectedPath[] = msm.getSelectedPath();
-                MenuElement selectedElement = selectedPath[selectedPath.length - 1];
-
-                if (element.equals(selectedElement)) {
-                    // show/hide tooltip message
-                    JComponent source = (JComponent) element.getComponent();
-                    ToolTipManager.this.show(source);
-                    e.consume();
-                }
-            }
-        }
-
-        @Override
-        public void menuKeyReleased(MenuKeyEvent e) {}
     }
 }

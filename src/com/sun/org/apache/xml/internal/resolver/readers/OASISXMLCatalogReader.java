@@ -1,10 +1,16 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+// OASISXMLCatalogReader.java - Read XML Catalog files
+
+/*
+ * Copyright 2001-2004 The Apache Software Foundation or its licensors,
+ * as applicable.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,16 +23,16 @@
 
 package com.sun.org.apache.xml.internal.resolver.readers;
 
+import java.util.Stack;
+import java.util.Vector;
+import java.util.Enumeration;
 import com.sun.org.apache.xml.internal.resolver.Catalog;
 import com.sun.org.apache.xml.internal.resolver.CatalogEntry;
 import com.sun.org.apache.xml.internal.resolver.CatalogException;
 import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
-import java.util.Enumeration;
-import java.util.Stack;
-import java.util.Vector;
-import javax.xml.parsers.SAXParserFactory;
-import org.w3c.dom.*;
+
 import org.xml.sax.*;
+import org.w3c.dom.*;
 
 /**
  * Parse OASIS Entity Resolution Technical Committee
@@ -65,17 +71,6 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
     return catalog;
   }
 
-  /** Default constructor */
-  public OASISXMLCatalogReader() {
-    super();
-  }
-
-  /** Constructor allowing for providing custom SAX parser factory */
-  public OASISXMLCatalogReader(SAXParserFactory parserFactory, Catalog catalog) {
-    super(parserFactory);
-    setCatalog(catalog);
-  }
-
   /**
    * Are we in an extension namespace?
    *
@@ -107,7 +102,7 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
     return;
   }
 
-  /** The SAX <code>startDocument</code> */
+  /** The SAX <code>startDocument</code> method does nothing. */
   public void startDocument ()
     throws SAXException {
     baseURIStack.push(catalog.getCurrentBase());
@@ -376,14 +371,14 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
       }
 
       if (localName.equals("doctype")) {
-        entryType = Catalog.DOCTYPE;
+        entryType = catalog.DOCTYPE;
         entryArgs.add(atts.getValue("name"));
         entryArgs.add(atts.getValue("uri"));
       } else if (localName.equals("document")) {
-        entryType = Catalog.DOCUMENT;
+        entryType = catalog.DOCUMENT;
         entryArgs.add(atts.getValue("uri"));
       } else if (localName.equals("dtddecl")) {
-        entryType = Catalog.DTDDECL;
+        entryType = catalog.DTDDECL;
         entryArgs.add(atts.getValue("publicId"));
         entryArgs.add(atts.getValue("uri"));
       } else if (localName.equals("entity")) {
@@ -437,7 +432,7 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
       && checkAttributes(atts, attName2);
   }
 
-  /** The SAX <code>endElement</code> */
+  /** The SAX <code>endElement</code> method does nothing. */
   public void endElement (String namespaceURI,
                           String localName,
                           String qName)
@@ -457,7 +452,7 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
       String baseURI = (String) baseURIStack.peek();
 
       if (!baseURI.equals(popURI)) {
-        entryType = Catalog.BASE;
+        entryType = catalog.BASE;
         entryArgs.add(baseURI);
 
         debug.message(4, "(reset) xml:base", baseURI);
@@ -482,7 +477,7 @@ public class OASISXMLCatalogReader extends SAXCatalogReader implements SAXCatalo
         String override = (String) overrideStack.peek();
 
         if (!override.equals(popOverride)) {
-          entryType = Catalog.OVERRIDE;
+          entryType = catalog.OVERRIDE;
           entryArgs.add(override);
           overrideStack.push(override);
 

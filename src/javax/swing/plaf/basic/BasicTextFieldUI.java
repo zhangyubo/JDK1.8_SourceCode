@@ -96,13 +96,7 @@ public class BasicTextFieldUI extends BasicTextUI {
             String kind = elem.getName();
             if (kind != null) {
                 if (kind.equals(AbstractDocument.ContentElementName)) {
-                    return new GlyphView(elem) {
-                        @Override
-                        public float getMinimumSpan(int axis) {
-                            // no wrap
-                            return getPreferredSpan(axis);
-                        }
-                    };
+                    return new GlyphView(elem);
                 } else if (kind.equals(AbstractDocument.ParagraphElementName)) {
                     return new I18nFieldView(elem);
                 }

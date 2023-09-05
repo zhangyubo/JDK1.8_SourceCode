@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -97,8 +97,7 @@ class MethodType implements java.io.Serializable {
 
     // The remaining fields are caches of various sorts:
     private @Stable MethodTypeForm form; // erased form, plus cached data about primitives
-    private @Stable Object wrapAlt;  // alternative wrapped/unwrapped version and
-                                     // private communication for readObject and readResolve
+    private @Stable MethodType wrapAlt;  // alternative wrapped/unwrapped version
     private @Stable Invokers invokers;   // cache of handy higher-order adapters
     private @Stable String methodDescriptor;  // cache for toMethodDescriptorString
 
@@ -674,7 +673,7 @@ class MethodType implements java.io.Serializable {
 
     private static MethodType wrapWithPrims(MethodType pt) {
         assert(pt.hasPrimitives());
-        MethodType wt = (MethodType)pt.wrapAlt;
+        MethodType wt = pt.wrapAlt;
         if (wt == null) {
             // fill in lazily
             wt = MethodTypeForm.canonicalize(pt, MethodTypeForm.WRAP, MethodTypeForm.WRAP);
@@ -686,7 +685,7 @@ class MethodType implements java.io.Serializable {
 
     private static MethodType unwrapWithNoPrims(MethodType wt) {
         assert(!wt.hasPrimitives());
-        MethodType uwt = (MethodType)wt.wrapAlt;
+        MethodType uwt = wt.wrapAlt;
         if (uwt == null) {
             // fill in lazily
             uwt = MethodTypeForm.canonicalize(wt, MethodTypeForm.UNWRAP, MethodTypeForm.UNWRAP);
@@ -1145,17 +1144,27 @@ s.writeObject(this.parameterArray());
      * @see #writeObject
      */
     private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
-        // Assign defaults in case this object escapes
-        UNSAFE.putObject(this, rtypeOffset, void.class);
-        UNSAFE.putObject(this, ptypesOffset, NO_PTYPES);
+        // Assign temporary defaults in case this object escapes
+        MethodType_init(void.class, NO_PTYPES);
 
         s.defaultReadObject();  // requires serialPersistentFields to be an empty array
 
         Class<?>   returnType     = (Class<?>)   s.readObject();
         Class<?>[] parameterArray = (Class<?>[]) s.readObject();
-        // Verify all operands, and make sure ptypes is unshared
-        // Cache the new MethodType for readResolve
-        wrapAlt = new MethodType[]{MethodType.methodType(returnType, parameterArray)};
+        parameterArray = parameterArray.clone();  // make sure it is unshared
+
+        // Assign deserialized values
+        MethodType_init(returnType, parameterArray);
+    }
+
+    // Initialization of state for deserialization only
+    private void MethodType_init(Class<?> rtype, Class<?>[] ptypes) {
+        // In order to communicate these values to readResolve, we must
+        // store them into the implementation-specific final fields.
+        checkRtype(rtype);
+        checkPtypes(ptypes);
+        UNSAFE.putObject(this, rtypeOffset, rtype);
+        UNSAFE.putObject(this, ptypesOffset, ptypes);
     }
 
     // Support for resetting final fields while deserializing
@@ -1180,10 +1189,12 @@ s.writeObject(this.parameterArray());
         // Do not use a trusted path for deserialization:
         //    return makeImpl(rtype, ptypes, true);
         // Verify all operands, and make sure ptypes is unshared:
-        // Return a new validated MethodType for the rtype and ptypes passed from readObject.
-        MethodType mt = ((MethodType[])wrapAlt)[0];
-        wrapAlt = null;
-        return mt;
+        try {
+            return methodType(rtype, ptypes);
+        } finally {
+            // Re-assign defaults in case this object escapes
+            MethodType_init(void.class, NO_PTYPES);
+        }
     }
 
     /**

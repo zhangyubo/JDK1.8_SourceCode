@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001, 2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,17 +21,14 @@
 package com.sun.org.apache.xerces.internal.dom;
 
 import com.sun.org.apache.xerces.internal.impl.xs.XSImplementationImpl;
-import java.util.ArrayList;
-import java.util.List;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DOMImplementationList;
+import org.w3c.dom.DOMImplementation;
+import java.util.Vector;
 
 /**
  * Allows to retrieve <code>XSImplementation</code>, DOM Level 3 Core and LS implementations
  * and PSVI implementation.
- * <p>See also the
- * <a href='http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#DOMImplementationSource'>
- * Document Object Model (DOM) Level 3 Core Specification</a>.
+ * <p>See also the <a href='http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#DOMImplementationSource'>Document Object Model (DOM) Level 3 Core Specification</a>.
  *
  * @xerces.internal
  *
@@ -81,23 +77,23 @@ public class DOMXSImplementationSourceImpl
      *   features.
      */
     public DOMImplementationList getDOMImplementationList(String features) {
-        final List<DOMImplementation> implementations = new ArrayList<>();
+        final Vector implementations = new Vector();
 
         // first check whether the CoreDOMImplementation would do
         DOMImplementationList list = super.getDOMImplementationList(features);
         //Add core DOMImplementations
         for (int i=0; i < list.getLength(); i++ ) {
-            implementations.add(list.item(i));
+            implementations.addElement(list.item(i));
         }
 
         DOMImplementation impl = PSVIDOMImplementationImpl.getDOMImplementation();
         if (testImpl(impl, features)) {
-            implementations.add(impl);
+            implementations.addElement(impl);
         }
 
         impl = XSImplementationImpl.getDOMImplementation();
         if (testImpl(impl, features)) {
-            implementations.add(impl);
+            implementations.addElement(impl);
         }
         return new DOMImplementationListImpl(implementations);
     }

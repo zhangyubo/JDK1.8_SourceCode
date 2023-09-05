@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -1024,8 +1024,18 @@ public class      BeanContextSupport extends BeanContextChildSupport
         int count = serializable;
 
         while (count-- > 0) {
-            Object child = ois.readObject();
-            BCSChild bscc = (BCSChild) ois.readObject();
+            Object                      child = null;
+            BeanContextSupport.BCSChild bscc  = null;
+
+            try {
+                child = ois.readObject();
+                bscc  = (BeanContextSupport.BCSChild)ois.readObject();
+            } catch (IOException ioe) {
+                continue;
+            } catch (ClassNotFoundException cnfe) {
+                continue;
+            }
+
 
             synchronized(child) {
                 BeanContextChild bcc = null;

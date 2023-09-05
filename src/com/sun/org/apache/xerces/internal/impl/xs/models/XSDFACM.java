@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2006, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
  * Copyright 1999-2004 The Apache Software Foundation.
@@ -30,9 +31,10 @@ import com.sun.org.apache.xerces.internal.impl.xs.XSModelGroupImpl;
 import com.sun.org.apache.xerces.internal.impl.xs.XSWildcardDecl;
 import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaException;
 import com.sun.org.apache.xerces.internal.impl.xs.XSConstraints;
+
+import java.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * DFAContentModel is the implementation of XSCMValidator that does
@@ -137,7 +139,6 @@ public class XSDFACM
      * positions in the second dimension of the transition table.
      */
     private int fTransTable[][] = null;
-
     /**
      * Array containing occurence information for looping states
      * which use counters to check minOccurs/maxOccurs.
@@ -165,8 +166,6 @@ public class XSDFACM
      * related tables such as fFinalStateFlags.
      */
     private int fTransTableSize = 0;
-
-    private boolean fIsCompactedForUPA;
 
     /**
      * Array of counters for all the for elements (or wildcards)
@@ -213,7 +212,6 @@ public class XSDFACM
 
         // Store away our index and pools in members
         fLeafCount = leafCount;
-        fIsCompactedForUPA = syntaxTree.isCompactedForUPA();
 
         //
         //  Create some string pool indexes that represent the names of some
@@ -805,7 +803,7 @@ public class XSDFACM
                         fTransTable[curState] = makeDefStateList();
 
                         /* Optimization(Jan, 2001) */
-                        stateTable.put(newSet, curState);
+                        stateTable.put(newSet, new Integer(curState));
                         /* Optimization(Jan, 2001) */
 
                         // We now have a new state to do so bump the count
@@ -1168,10 +1166,10 @@ public class XSDFACM
      * have been seen.
      *
      * @param state  the current state
-     * @return       a list whose entries are instances of
+     * @return       a Vector whose entries are instances of
      *               either XSWildcardDecl or XSElementDecl.
      */
-    public List<Object> whatCanGoHere(int[] state) {
+    public Vector whatCanGoHere(int[] state) {
         int curState = state[0];
         if (curState < 0)
             curState = state[1];
@@ -1179,9 +1177,7 @@ public class XSDFACM
                 fCountingStates[curState] : null;
         int count = state[2];
 
-        // Can be XSElementDecl or XSWildcardDecl, but eventually the content is
-        // only used to evaluate toString
-        List<Object> ret = new ArrayList<>();
+        Vector ret = new Vector();
         for (int elemIndex = 0; elemIndex < fElemMapSize; elemIndex++) {
             int nextState = fTransTable[curState][elemIndex];
             if (nextState != -1) {
@@ -1201,7 +1197,7 @@ public class XSDFACM
                         continue;
                     }
                 }
-                ret.add(fElemMap[elemIndex]);
+                ret.addElement(fElemMap[elemIndex]);
             }
         }
         return ret;
@@ -1220,8 +1216,8 @@ public class XSDFACM
      * is associated with the error code that preceeds it in
      * the list.
      */
-    public List<String> checkMinMaxBounds() {
-        List<String> result = null;
+    public ArrayList checkMinMaxBounds() {
+        ArrayList result = null;
         for (int elemIndex = 0; elemIndex < fElemMapSize; elemIndex++) {
             int count = fElemMapCounter[elemIndex];
             if (count == -1) {
@@ -1230,44 +1226,17 @@ public class XSDFACM
             final int minOccurs = fElemMapCounterLowerBound[elemIndex];
             final int maxOccurs = fElemMapCounterUpperBound[elemIndex];
             if (count < minOccurs) {
-                if (result == null) result = new ArrayList<>();
+                if (result == null) result = new ArrayList();
                 result.add("cvc-complex-type.2.4.b");
                 result.add("{" + fElemMap[elemIndex] + "}");
             }
             if (maxOccurs != -1 && count > maxOccurs) {
-                if (result == null) result = new ArrayList<>();
-                result.add("cvc-complex-type.2.4.d.1");
+                if (result == null) result = new ArrayList();
+                result.add("cvc-complex-type.2.4.e");
                 result.add("{" + fElemMap[elemIndex] + "}");
             }
         }
         return result;
     }
 
-    public int [] occurenceInfo(int[] state) {
-        if (fCountingStates != null) {
-            int curState = state[0];
-            if (curState < 0) {
-                curState = state[1];
-            }
-            Occurence o = fCountingStates[curState];
-            if (o != null) {
-                int [] occurenceInfo = new int[4];
-                occurenceInfo[0] = o.minOccurs;
-                occurenceInfo[1] = o.maxOccurs;
-                occurenceInfo[2] = state[2];
-                occurenceInfo[3] = o.elemIndex;
-                return occurenceInfo;
-            }
-        }
-        return null;
-    }
-
-    public String getTermName(int termId) {
-        Object term = fElemMap[termId];
-        return (term != null) ? term.toString() : null;
-    }
-
-    public boolean isCompactedForUPA() {
-        return fIsCompactedForUPA;
-    }
 } // class DFAContentModel

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
  * Copyright 1999-2002,2004 The Apache Software Foundation.
@@ -54,15 +55,10 @@ import com.sun.org.apache.xerces.internal.util.URI;
  * @author Andy Clark, IBM
  * @author Ralf Pfeiffer, IBM
  * @since  PR-DOM-Level-1-19980818.
- * @LastModified: Apr 2019
  */
 public class ElementImpl
     extends ParentNode
     implements Element, TypeInfo {
-    // To Joe:
-    // The following change is ignored (since need JDK-8135283 ot add ElementTraversal iface):
-    // +    extends ParentNode
-    // +    implements Element, ElementTraversal, TypeInfo {
 
     //
     // Constants
@@ -233,7 +229,7 @@ public class ElementImpl
      * NON-DOM
      * set the ownerDocument of this node, its children, and its attributes
      */
-    protected void setOwnerDocument(CoreDocumentImpl doc) {
+    void setOwnerDocument(CoreDocumentImpl doc) {
         super.setOwnerDocument(doc);
         if (attributes != null) {
             attributes.setOwnerDocument(doc);

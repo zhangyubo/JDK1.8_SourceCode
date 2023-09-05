@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -425,7 +425,7 @@ public final class Scanner implements Iterator<String>, Closeable {
         // here but what can we do? The final authority will be
         // whatever parse method is invoked, so ultimately the
         // Scanner will do the right thing
-        String digit = "((?i)["+radixDigits+"\\p{javaDigit}])";
+        String digit = "((?i)["+radixDigits+"]|\\p{javaDigit})";
         String groupedNumeral = "("+non0Digit+digit+"?"+digit+"?("+
                                 groupSeparator+digit+digit+digit+")+)";
         // digit++ is the possessive form which is necessary for reducing
@@ -475,7 +475,7 @@ public final class Scanner implements Iterator<String>, Closeable {
     private Pattern decimalPattern;
     private void buildFloatAndDecimalPattern() {
         // \\p{javaDigit} may not be perfect, see above
-        String digit = "(([0-9\\p{javaDigit}]))";
+        String digit = "([0-9]|(\\p{javaDigit}))";
         String exponent = "([eE][+-]?"+digit+"+)?";
         String groupedNumeral = "("+non0Digit+digit+"?"+digit+"?("+
                                 groupSeparator+digit+digit+digit+")+)";
@@ -1188,25 +1188,25 @@ public final class Scanner implements Iterator<String>, Closeable {
 
         // These must be literalized to avoid collision with regex
         // metacharacters such as dot or parenthesis
-        groupSeparator =   "\\x{" + Integer.toHexString(dfs.getGroupingSeparator()) + "}";
-        decimalSeparator = "\\x{" + Integer.toHexString(dfs.getDecimalSeparator()) + "}";
+        groupSeparator =   "\\" + dfs.getGroupingSeparator();
+        decimalSeparator = "\\" + dfs.getDecimalSeparator();
 
         // Quoting the nonzero length locale-specific things
         // to avoid potential conflict with metacharacters
-        nanString = Pattern.quote(dfs.getNaN());
-        infinityString = Pattern.quote(dfs.getInfinity());
+        nanString = "\\Q" + dfs.getNaN() + "\\E";
+        infinityString = "\\Q" + dfs.getInfinity() + "\\E";
         positivePrefix = df.getPositivePrefix();
-        if (!positivePrefix.isEmpty())
-            positivePrefix = Pattern.quote(positivePrefix);
+        if (positivePrefix.length() > 0)
+            positivePrefix = "\\Q" + positivePrefix + "\\E";
         negativePrefix = df.getNegativePrefix();
-        if (!negativePrefix.isEmpty())
-            negativePrefix = Pattern.quote(negativePrefix);
+        if (negativePrefix.length() > 0)
+            negativePrefix = "\\Q" + negativePrefix + "\\E";
         positiveSuffix = df.getPositiveSuffix();
-        if (!positiveSuffix.isEmpty())
-            positiveSuffix = Pattern.quote(positiveSuffix);
+        if (positiveSuffix.length() > 0)
+            positiveSuffix = "\\Q" + positiveSuffix + "\\E";
         negativeSuffix = df.getNegativeSuffix();
-        if (!negativeSuffix.isEmpty())
-            negativeSuffix = Pattern.quote(negativeSuffix);
+        if (negativeSuffix.length() > 0)
+            negativeSuffix = "\\Q" + negativeSuffix + "\\E";
 
         // Force rebuilding and recompilation of locale dependent
         // primitive patterns

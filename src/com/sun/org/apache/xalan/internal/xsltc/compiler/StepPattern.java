@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Dec 2019
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001-2004 The Apache Software Foundation.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * $Id: StepPattern.java,v 1.2.4.1 2005/09/12 11:13:19 pvedula Exp $
+ */
 
 package com.sun.org.apache.xalan.internal.xsltc.compiler;
+
+import java.util.Vector;
 
 import com.sun.org.apache.bcel.internal.classfile.Field;
 import com.sun.org.apache.bcel.internal.generic.ALOAD;
@@ -52,7 +56,6 @@ import com.sun.org.apache.xalan.internal.xsltc.compiler.util.TypeCheckError;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Util;
 import com.sun.org.apache.xml.internal.dtm.Axis;
 import com.sun.org.apache.xml.internal.dtm.DTM;
-import java.util.List;
 
 /**
  * @author Jacek Ambroziak
@@ -67,7 +70,7 @@ class StepPattern extends RelativePathPattern {
 
     protected final int _axis;
     protected final int _nodeType;
-    protected List<Predicate> _predicates;
+    protected Vector _predicates;
 
     private Step    _step = null;
     private boolean _isEpsilon = false;
@@ -75,7 +78,7 @@ class StepPattern extends RelativePathPattern {
 
     private double  _priority = Double.MAX_VALUE;
 
-    public StepPattern(int axis, int nodeType, List<Predicate> predicates) {
+    public StepPattern(int axis, int nodeType, Vector predicates) {
         _axis = axis;
         _nodeType = nodeType;
         _predicates = predicates;
@@ -84,7 +87,9 @@ class StepPattern extends RelativePathPattern {
     public void setParser(Parser parser) {
         super.setParser(parser);
         if (_predicates != null) {
-            for (Predicate exp : _predicates) {
+            final int n = _predicates.size();
+            for (int i = 0; i < n; i++) {
+                final Predicate exp = (Predicate)_predicates.elementAt(i);
                 exp.setParser(parser);
                 exp.setParent(this);
             }
@@ -107,7 +112,7 @@ class StepPattern extends RelativePathPattern {
         return _isEpsilon && hasPredicates() == false;
     }
 
-    public StepPattern setPredicates(List<Predicate> predicates) {
+    public StepPattern setPredicates(Vector predicates) {
         _predicates = predicates;
         return(this);
     }
@@ -146,7 +151,7 @@ class StepPattern extends RelativePathPattern {
 
     public String toString() {
         final StringBuffer buffer = new StringBuffer("stepPattern(\"");
-        buffer.append(Axis.getNames(_axis))
+    buffer.append(Axis.getNames(_axis))
             .append("\", ")
             .append(_isEpsilon ?
                         ("epsilon{" + Integer.toString(_nodeType) + "}") :
@@ -161,7 +166,7 @@ class StepPattern extends RelativePathPattern {
         final int n = _predicates.size();
 
         for (int i = 0; i < n && noContext; i++) {
-            Predicate pred = _predicates.get(i);
+            Predicate pred = (Predicate) _predicates.elementAt(i);
             if (pred.isNthPositionFilter() ||
                 pred.hasPositionCall() ||
                 pred.hasLastCall())
@@ -186,7 +191,9 @@ class StepPattern extends RelativePathPattern {
     public Type typeCheck(SymbolTable stable) throws TypeCheckError {
         if (hasPredicates()) {
             // Type check all the predicates (e -> position() = e)
-            for (Predicate pred : _predicates) {
+            final int n = _predicates.size();
+            for (int i = 0; i < n; i++) {
+                final Predicate pred = (Predicate)_predicates.elementAt(i);
                 pred.typeCheck(stable);
             }
 
@@ -197,7 +204,7 @@ class StepPattern extends RelativePathPattern {
 
             // Create an instance of Step to do the translation
             if (_contextCase == SIMPLE_CONTEXT) {
-                Predicate pred = _predicates.get(0);
+                Predicate pred = (Predicate)_predicates.elementAt(0);
                 if (pred.isNthPositionFilter()) {
                     _contextCase = GENERAL_CONTEXT;
                     step = new Step(_axis, _nodeType, _predicates);
@@ -205,8 +212,9 @@ class StepPattern extends RelativePathPattern {
                     step = new Step(_axis, _nodeType, null);
                 }
             } else if (_contextCase == GENERAL_CONTEXT) {
-                for (Predicate pred : _predicates) {
-                    pred.dontOptimize();
+                final int len = _predicates.size();
+                for (int i = 0; i < len; i++) {
+                    ((Predicate)_predicates.elementAt(i)).dontOptimize();
                 }
 
                 step = new Step(_axis, _nodeType, _predicates);
@@ -286,7 +294,9 @@ class StepPattern extends RelativePathPattern {
         }
 
         // Compile the expressions within the predicates
-        for (Predicate pred : _predicates) {
+        final int n = _predicates.size();
+        for (int i = 0; i < n; i++) {
+            Predicate pred = (Predicate)_predicates.elementAt(i);
             Expression exp = pred.getExpr();
             exp.translateDesynthesized(classGen, methodGen);
             _trueList.append(exp._trueList);
@@ -374,7 +384,7 @@ class StepPattern extends RelativePathPattern {
         il.append(methodGen.storeCurrentNode());
 
         // Translate the expression of the predicate
-        Predicate pred = _predicates.get(0);
+        Predicate pred = (Predicate) _predicates.elementAt(0);
         Expression exp = pred.getExpr();
         exp.translateDesynthesized(classGen, methodGen);
 

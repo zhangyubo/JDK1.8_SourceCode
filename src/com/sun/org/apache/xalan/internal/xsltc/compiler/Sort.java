@@ -2,14 +2,13 @@
  * Copyright (c) 2016, Oracle and/or its affiliates. All rights reserved.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001-2005 The Apache Software Foundation.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,7 +65,7 @@ final class Sort extends Instruction implements Closure {
     private AttributeValue _order;
     private AttributeValue _caseOrder;
     private AttributeValue _dataType;
-    private AttributeValue _lang; // bug! see 26869, see XALANJ-2546
+    private String         _lang; // bug! see 26869
 
     private String _className = null;
     private ArrayList<VariableRefBase> _closureVars = null;
@@ -154,11 +153,13 @@ final class Sort extends Instruction implements Closure {
         }
         _dataType = AttributeValue.create(this, val, parser);
 
-        val =  getAttribute("lang");
-        _lang = AttributeValue.create(this, val, parser);
+         _lang =  getAttribute("lang"); // bug! see 26869
+  // val =  getAttribute("lang");
+  // _lang = AttributeValue.create(this, val, parser);
         // Get the case order; default is language dependant
-        val = getAttribute("case-order");
-        _caseOrder = AttributeValue.create(this, val, parser);
+    val = getAttribute("case-order");
+    _caseOrder = AttributeValue.create(this, val, parser);
+
     }
 
     /**
@@ -177,7 +178,6 @@ final class Sort extends Instruction implements Closure {
         _order.typeCheck(stable);
         _caseOrder.typeCheck(stable);
         _dataType.typeCheck(stable);
-        _lang.typeCheck(stable);
         return Type.Void;
     }
 
@@ -195,14 +195,16 @@ final class Sort extends Instruction implements Closure {
         _order.translate(classGen, methodGen);
     }
 
-    public void translateCaseOrder(ClassGenerator classGen,
+     public void translateCaseOrder(ClassGenerator classGen,
                    MethodGenerator methodGen) {
-        _caseOrder.translate(classGen, methodGen);
+    _caseOrder.translate(classGen, methodGen);
     }
 
     public void translateLang(ClassGenerator classGen,
                    MethodGenerator methodGen) {
-        _lang.translate(classGen, methodGen);
+    final ConstantPoolGen cpg = classGen.getConstantPool();
+    final InstructionList il = methodGen.getInstructionList();
+    il.append(new PUSH(cpg, _lang)); // bug! see 26869
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -9,7 +9,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
+ * $Id: SerializerFactory.java,v 1.2.4.1 2005/09/15 08:15:24 suresh_emailid Exp $
+ */
 package com.sun.org.apache.xml.internal.serializer;
 
 import com.sun.org.apache.xalan.internal.utils.ObjectFactory;
@@ -122,12 +124,12 @@ public final class SerializerFactory
 
         // _serializers.put(method, cls);
 
-        Object obj = cls.getConstructor().newInstance();
+        Object obj = cls.newInstance();
 
         if (obj instanceof SerializationHandler)
         {
               // this is one of the supplied serializers
-            ser = (Serializer) obj;
+            ser = (Serializer) cls.newInstance();
             ser.setOutputFormat(format);
         }
         else
@@ -148,7 +150,7 @@ public final class SerializerFactory
                   className = SerializerConstants.DEFAULT_SAX_SERIALIZER;
                   cls = ObjectFactory.findProviderClass(className, true);
                   SerializationHandler sh =
-                      (SerializationHandler) cls.getConstructor().newInstance();
+                      (SerializationHandler) cls.newInstance();
                   sh.setContentHandler( (ContentHandler) obj);
                   sh.setOutputFormat(format);
 

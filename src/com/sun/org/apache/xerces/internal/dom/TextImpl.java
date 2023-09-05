@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -41,7 +41,6 @@ import org.w3c.dom.Text;
  * @xerces.internal
  *
  * @since  PR-DOM-Level-1-19980818.
- * @LastModified: Apr 2019
  */
 public class TextImpl
     extends CharacterDataImpl
@@ -146,32 +145,37 @@ public class TextImpl
             synchronizeData();
         }
 
-        StringBuilder buffer = new StringBuilder();
+        if (fBufferStr == null){
+            fBufferStr = new StringBuffer();
+        }
+        else {
+            fBufferStr.setLength(0);
+        }
         if (data != null && data.length() != 0) {
-            buffer.append(data);
+            fBufferStr.append(data);
         }
 
-        // concatenate text of logically adjacent text nodes to the left of this node in the tree
-        getWholeTextBackward(this.getPreviousSibling(), buffer, this.getParentNode());
-        String temp = buffer.toString();
+        //concatenate text of logically adjacent text nodes to the left of this node in the tree
+        getWholeTextBackward(this.getPreviousSibling(), fBufferStr, this.getParentNode());
+        String temp = fBufferStr.toString();
 
-        // clear buffer
-        buffer.setLength(0);
+        //clear buffer
+        fBufferStr.setLength(0);
 
-        // concatenate text of logically adjacent text nodes to the right of this node in the tree
-        getWholeTextForward(this.getNextSibling(), buffer, this.getParentNode());
+        //concatenate text of logically adjacent text nodes to the right of this node in the tree
+        getWholeTextForward(this.getNextSibling(), fBufferStr, this.getParentNode());
 
-        return temp + buffer.toString();
+        return temp + fBufferStr.toString();
 
     }
 
     /**
-     * internal method taking a StringBuilder in parameter and inserts the
+     * internal method taking a StringBuffer in parameter and inserts the
      * text content at the start of the buffer
      *
      * @param buf
      */
-    protected void insertTextContent(StringBuilder buf) throws DOMException {
+    protected void insertTextContent(StringBuffer buf) throws DOMException {
          String content = getNodeValue();
          if (content != null) {
              buf.insert(0, content);
@@ -188,7 +192,7 @@ public class TextImpl
      *         other than EntityRef, Text, CDATA is encountered, otherwise
      *         return false
      */
-    private boolean getWholeTextForward(Node node, StringBuilder buffer, Node parent){
+    private boolean getWholeTextForward(Node node, StringBuffer buffer, Node parent){
         // boolean to indicate whether node is a child of an entity reference
         boolean inEntRef = false;
 
@@ -235,7 +239,7 @@ public class TextImpl
      *         other than EntityRef, Text, CDATA is encountered, otherwise
      *         return false
      */
-    private boolean getWholeTextBackward(Node node, StringBuilder buffer, Node parent){
+    private boolean getWholeTextBackward(Node node, StringBuffer buffer, Node parent){
 
         // boolean to indicate whether node is a child of an entity reference
         boolean inEntRef = false;

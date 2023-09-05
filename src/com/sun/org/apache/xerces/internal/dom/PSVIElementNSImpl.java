@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2002-2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,15 +20,13 @@
 
 package com.sun.org.apache.xerces.internal.dom;
 
-import com.sun.org.apache.xerces.internal.impl.dv.ValidatedInfo;
-import com.sun.org.apache.xerces.internal.impl.xs.ElementPSVImpl;
-import com.sun.org.apache.xerces.internal.impl.xs.util.StringListImpl;
-import com.sun.org.apache.xerces.internal.xs.*;
-import com.sun.org.apache.xerces.internal.xs.ElementPSVI;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import com.sun.org.apache.xerces.internal.xs.ElementPSVI;
+import com.sun.org.apache.xerces.internal.xs.*;
 
 /**
  * Element namespace implementation; stores PSVI element items.
@@ -75,11 +73,23 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
      */
     protected boolean fSpecified = true;
 
-    /** Schema value */
-    protected ValidatedInfo fValue = new ValidatedInfo();
+    /** schema normalized value property */
+    protected String fNormalizedValue = null;
+
+    /** schema actual value */
+    protected Object fActualValue = null;
+
+    /** schema actual value type */
+    protected short fActualValueType = XSConstants.UNAVAILABLE_DT;
+
+    /** actual value types if the value is a list */
+    protected ShortList fItemValueTypes = null;
 
     /** http://www.w3.org/TR/xmlschema-1/#e-notation*/
     protected XSNotationDeclaration fNotation = null;
+
+    /** member type definition against which element was validated */
+    protected XSSimpleTypeDefinition fMemberType = null;
 
     /** validation attempted: none, partial, full */
     protected short fValidationAttempted = ElementPSVI.VALIDATION_NONE;
@@ -89,9 +99,6 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
 
     /** error codes */
     protected StringList fErrorCodes = null;
-
-    /** error messages */
-    protected StringList fErrorMessages = null;
 
     /** validation context: could be QName or XPath expression*/
     protected String fValidationContext = null;
@@ -103,27 +110,12 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
     // ElementPSVI methods
     //
 
-    /* (non-Javadoc)
-     * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#constant()
-     */
-    public ItemPSVI constant() {
-        return new ElementPSVImpl(true, this);
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#isConstant()
-     */
-    public boolean isConstant() {
-        return false;
-    }
-
     /**
      * [schema default]
      *
      * @return The canonical lexical representation of the declaration's {value constraint} value.
      * @see <a href="http://www.w3.org/TR/xmlschema-1/#e-schema_default>XML Schema Part 1: Structures [schema default]</a>
      */
-    @SuppressWarnings("deprecation")
     public String getSchemaDefault() {
         return fDeclaration == null ? null : fDeclaration.getConstraintValue();
     }
@@ -135,9 +127,8 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
      * @see <a href="http://www.w3.org/TR/xmlschema-1/#e-schema_normalized_value>XML Schema Part 1: Structures [schema normalized value]</a>
      * @return the normalized value of this item after validation
      */
-    @Deprecated
     public String getSchemaNormalizedValue() {
-        return fValue.getNormalizedValue();
+        return fNormalizedValue;
     }
 
     /**
@@ -177,24 +168,9 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
      * @return Array of error codes
      */
     public StringList getErrorCodes() {
-        if (fErrorCodes != null) {
-            return fErrorCodes;
-        }
-        return StringListImpl.EMPTY_LIST;
+        return fErrorCodes;
     }
 
-    /**
-     * A list of error messages generated from the validation attempt or
-     * an empty <code>StringList</code> if no errors occurred during the
-     * validation attempt. The indices of error messages in this list are
-     * aligned with those in the <code>[schema error code]</code> list.
-     */
-    public StringList getErrorMessages() {
-        if (fErrorMessages != null) {
-            return fErrorMessages;
-        }
-        return StringListImpl.EMPTY_LIST;
-    }
 
     // This is the only information we can provide in a pipeline.
     public String getValidationContext() {
@@ -238,7 +214,7 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
      * @return  a simple type declaration
      */
     public XSSimpleTypeDefinition getMemberTypeDefinition() {
-        return fValue.getMemberTypeDefinition();
+        return fMemberType;
     }
 
     /**
@@ -264,7 +240,7 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
     /**
      * Copy PSVI properties from another psvi item.
      *
-     * @param elem  the source of element PSVI items
+     * @param attr  the source of attribute PSVI items
      */
     public void setPSVI(ElementPSVI elem) {
         this.fDeclaration = elem.getElementDeclaration();
@@ -275,15 +251,11 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
         this.fValidity = elem.getValidity();
         this.fValidationAttempted = elem.getValidationAttempted();
         this.fErrorCodes = elem.getErrorCodes();
-        this.fErrorMessages = elem.getErrorMessages();
-        if (fTypeDecl instanceof XSSimpleTypeDefinition ||
-                fTypeDecl instanceof XSComplexTypeDefinition &&
-                ((XSComplexTypeDefinition)fTypeDecl).getContentType() == XSComplexTypeDefinition.CONTENTTYPE_SIMPLE) {
-            this.fValue.copyFrom(elem.getSchemaValue());
-        }
-        else {
-            this.fValue.reset();
-        }
+        this.fNormalizedValue = elem.getSchemaNormalizedValue();
+        this.fActualValue = elem.getActualNormalizedValue();
+        this.fActualValueType = elem.getActualNormalizedValueType();
+        this.fItemValueTypes = elem.getItemValueTypes();
+        this.fMemberType = elem.getMemberTypeDefinition();
         this.fSpecified = elem.getIsSchemaSpecified();
         this.fNil = elem.getNil();
     }
@@ -291,32 +263,22 @@ public class PSVIElementNSImpl extends ElementNSImpl implements ElementPSVI {
     /* (non-Javadoc)
      * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#getActualNormalizedValue()
      */
-    @Deprecated
     public Object getActualNormalizedValue() {
-        return fValue.getActualValue();
+        return this.fActualValue;
     }
 
     /* (non-Javadoc)
      * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#getActualNormalizedValueType()
      */
-    @Deprecated
     public short getActualNormalizedValueType() {
-        return fValue.getActualValueType();
+        return this.fActualValueType;
     }
 
     /* (non-Javadoc)
      * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#getItemValueTypes()
      */
-    @Deprecated
     public ShortList getItemValueTypes() {
-        return fValue.getListValueTypes();
-    }
-
-    /* (non-Javadoc)
-     * @see com.sun.org.apache.xerces.internal.xs.ItemPSVI#getSchemaValue()
-     */
-    public XSValue getSchemaValue() {
-        return fValue;
+        return this.fItemValueTypes;
     }
 
     // REVISIT: Forbid serialization of PSVI DOM until

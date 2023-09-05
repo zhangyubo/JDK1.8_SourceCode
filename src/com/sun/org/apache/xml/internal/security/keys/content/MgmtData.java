@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * @author $Author: coheigea $
  */
 public class MgmtData extends SignatureElementProxy implements KeyInfoContent {
 
@@ -36,12 +37,12 @@ public class MgmtData extends SignatureElementProxy implements KeyInfoContent {
      * Constructor MgmtData
      *
      * @param element
-     * @param baseURI
+     * @param BaseURI
      * @throws XMLSecurityException
      */
-    public MgmtData(Element element, String baseURI)
+    public MgmtData(Element element, String BaseURI)
         throws XMLSecurityException {
-        super(element, baseURI);
+        super(element, BaseURI);
     }
 
     /**
@@ -65,7 +66,7 @@ public class MgmtData extends SignatureElementProxy implements KeyInfoContent {
         return this.getTextFromTextChild();
     }
 
-    /** {@inheritDoc} */
+    /** @inheritDoc */
     public String getBaseLocalName() {
         return Constants._TAG_MGMTDATA;
     }

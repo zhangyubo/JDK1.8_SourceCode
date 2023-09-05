@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -81,11 +81,7 @@ class NewInstance {
         } else {
             driverClass = classLoader.loadClass(className);
         }
-        try {
-            return driverClass.getConstructor().newInstance();
-        } catch (NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-            throw new InstantiationException(ex.getMessage());
-        }
+        return driverClass.newInstance();
     }
 
 }

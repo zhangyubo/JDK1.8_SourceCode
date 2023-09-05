@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2002-2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,6 +19,13 @@
  */
 
 package com.sun.org.apache.xerces.internal.impl.xs;
+
+import java.lang.reflect.Array;
+import java.util.AbstractList;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import com.sun.org.apache.xerces.internal.impl.xs.util.StringListImpl;
@@ -33,7 +39,6 @@ import com.sun.org.apache.xerces.internal.xs.XSAttributeDeclaration;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeGroupDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSConstants;
 import com.sun.org.apache.xerces.internal.xs.XSElementDeclaration;
-import com.sun.org.apache.xerces.internal.xs.XSIDCDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSModel;
 import com.sun.org.apache.xerces.internal.xs.XSModelGroupDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
@@ -43,12 +48,6 @@ import com.sun.org.apache.xerces.internal.xs.XSNotationDeclaration;
 import com.sun.org.apache.xerces.internal.xs.XSObject;
 import com.sun.org.apache.xerces.internal.xs.XSObjectList;
 import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
-import java.lang.reflect.Array;
-import java.util.AbstractList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
 
 /**
  * Implements XSModel:  a read-only interface that represents an XML Schema,
@@ -60,8 +59,7 @@ import java.util.NoSuchElementException;
  *
  * @version $Id: XSModelImpl.java,v 1.7 2010-11-01 04:39:55 joehw Exp $
  */
-@SuppressWarnings("unchecked") // method <T>toArray(T[])
-public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements XSModel, XSNamespaceItemList {
+public final class XSModelImpl extends AbstractList implements XSModel, XSNamespaceItemList {
 
     // the max index / the max value of XSObject type
     private static final short MAX_COMP_IDX = XSTypeDefinition.SIMPLE_TYPE;
@@ -75,7 +73,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
                                                   false,    // model group
                                                   false,    // particle
                                                   false,    // wildcard
-                                                  true,    // idc
+                                                  false,    // idc
                                                   true,     // notation
                                                   false,    // annotation
                                                   false,    // facet
@@ -141,7 +139,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         }
 
         SchemaGrammar sg1, sg2;
-        List<SchemaGrammar> gs;
+        Vector gs;
         int i, j, k;
         // and recursively get all imported grammars, add them to our arrays
         for (i = 0; i < len; i++) {
@@ -150,7 +148,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
             gs = sg1.getImportedGrammars();
             // for each imported grammar
             for (j = gs == null ? -1 : gs.size() - 1; j >= 0; j--) {
-                sg2 = gs.get(j);
+                sg2 = (SchemaGrammar)gs.elementAt(j);
                 // check whether this grammar is already in the list
                 for (k = 0; k < len; k++) {
                     if (sg2 == grammarList[k]) {
@@ -329,9 +327,6 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
                 case XSConstants.NOTATION_DECLARATION:
                     tables[i] = fGrammarList[i].fGlobalNotationDecls;
                     break;
-                case XSConstants.IDENTITY_CONSTRAINT:
-                    tables[i] = fGrammarList[i].fGlobalIDConstraintDecls;
-                    break;
                 }
             }
             // for complex/simple types, create a special implementation,
@@ -410,9 +405,6 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
                 break;
             case XSConstants.NOTATION_DECLARATION:
                 table = fGrammarList[i].fGlobalNotationDecls;
-                break;
-            case XSConstants.IDENTITY_CONSTRAINT:
-                table = fGrammarList[i].fGlobalIDConstraintDecls;
                 break;
             }
 
@@ -604,40 +596,6 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         return sg.getGlobalGroupDecl(name, loc);
     }
 
-    /**
-     * Convenience method. Returns a top-level model group definition.
-     *
-     * @param name      The name of the definition.
-     * @param namespace The namespace of the definition, otherwise null.
-     * @return A top-level model group definition definition or null if such
-     *         definition does not exist.
-     */
-    public XSIDCDefinition getIDCDefinition(String name, String namespace) {
-        SchemaGrammar sg = (SchemaGrammar)fGrammarMap.get(null2EmptyString(namespace));
-        if (sg == null) {
-            return null;
-        }
-        return (XSIDCDefinition)sg.fGlobalIDConstraintDecls.get(name);
-    }
-
-    /**
-     * Convenience method. Returns a top-level model group definition.
-     *
-     * @param name      The name of the definition.
-     * @param namespace The namespace of the definition, otherwise null.
-     * @param loc The schema location where the component was defined
-     * @return A top-level model group definition definition or null if such
-     *         definition does not exist.
-     */
-    public XSIDCDefinition getIDCDefinition(String name, String namespace,
-                                                          String loc) {
-        SchemaGrammar sg = (SchemaGrammar)fGrammarMap.get(null2EmptyString(namespace));
-        if (sg == null) {
-            return null;
-        }
-        return sg.getIDConstraintDecl(name, loc);
-    }
-
 
     /**
      * @see org.apache.xerces.xs.XSModel#getNotationDeclaration(String, String)
@@ -753,7 +711,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
     // java.util.List methods
     //
 
-    public XSNamespaceItem get(int index) {
+    public Object get(int index) {
         if (index >= 0 && index < fGrammarCount) {
             return fGrammarList[index];
         }
@@ -764,22 +722,22 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         return getLength();
     }
 
-    public Iterator<XSNamespaceItem> iterator() {
+    public Iterator iterator() {
         return listIterator0(0);
     }
 
-    public ListIterator<XSNamespaceItem> listIterator() {
+    public ListIterator listIterator() {
         return listIterator0(0);
     }
 
-    public ListIterator<XSNamespaceItem> listIterator(int index) {
+    public ListIterator listIterator(int index) {
         if (index >= 0 && index < fGrammarCount) {
             return listIterator0(index);
         }
         throw new IndexOutOfBoundsException("Index: " + index);
     }
 
-    private ListIterator<XSNamespaceItem> listIterator0(int index) {
+    private ListIterator listIterator0(int index) {
         return new XSNamespaceItemListIterator(index);
     }
 
@@ -791,8 +749,8 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
 
     public Object[] toArray(Object[] a) {
         if (a.length < fGrammarCount) {
-            Class<?> arrayClass = a.getClass();
-            Class<?> componentType = arrayClass.getComponentType();
+            Class arrayClass = a.getClass();
+            Class componentType = arrayClass.getComponentType();
             a = (Object[]) Array.newInstance(componentType, fGrammarCount);
         }
         toArray0(a);
@@ -808,7 +766,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         }
     }
 
-    private final class XSNamespaceItemListIterator implements ListIterator<XSNamespaceItem> {
+    private final class XSNamespaceItemListIterator implements ListIterator {
         private int index;
         public XSNamespaceItemListIterator(int index) {
             this.index = index;
@@ -816,7 +774,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         public boolean hasNext() {
             return (index < fGrammarCount);
         }
-        public XSNamespaceItem next() {
+        public Object next() {
             if (index < fGrammarCount) {
                 return fGrammarList[index++];
             }
@@ -825,7 +783,7 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         public boolean hasPrevious() {
             return (index > 0);
         }
-        public XSNamespaceItem previous() {
+        public Object previous() {
             if (index > 0) {
                 return fGrammarList[--index];
             }
@@ -840,10 +798,10 @@ public final class XSModelImpl extends AbstractList<XSNamespaceItem> implements 
         public void remove() {
             throw new UnsupportedOperationException();
         }
-        public void set(XSNamespaceItem o) {
+        public void set(Object o) {
             throw new UnsupportedOperationException();
         }
-        public void add(XSNamespaceItem o) {
+        public void add(Object o) {
             throw new UnsupportedOperationException();
         }
     }

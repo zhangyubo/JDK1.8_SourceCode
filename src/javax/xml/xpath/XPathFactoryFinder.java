@@ -27,7 +27,6 @@ package javax.xml.xpath;
 
 import com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessController;
@@ -288,15 +287,25 @@ class XPathFactoryFinder  {
 
         // instantiate Class as a XPathFactory
         try {
-                xPathFactory = (XPathFactory) clazz.getConstructor().newInstance();
-        } catch (ClassCastException | IllegalAccessException | IllegalArgumentException |
-            InstantiationException | InvocationTargetException | NoSuchMethodException |
-            SecurityException ex) {
-            debugPrintln("could not instantiate " + clazz.getName());
-            if (debug) {
-                    ex.printStackTrace();
-            }
-            return null;
+                xPathFactory = (XPathFactory) clazz.newInstance();
+        } catch (ClassCastException classCastException) {
+                debugPrintln("could not instantiate " + clazz.getName());
+                if (debug) {
+                        classCastException.printStackTrace();
+                }
+                return null;
+        } catch (IllegalAccessException illegalAccessException) {
+                debugPrintln("could not instantiate " + clazz.getName());
+                if (debug) {
+                        illegalAccessException.printStackTrace();
+                }
+                return null;
+        } catch (InstantiationException instantiationException) {
+                debugPrintln("could not instantiate " + clazz.getName());
+                if (debug) {
+                        instantiationException.printStackTrace();
+                }
+                return null;
         }
 
         return xPathFactory;

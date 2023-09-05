@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,8 +20,11 @@
 
 package com.sun.org.apache.xerces.internal.dom;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 
 /**
  * The DOMImplementation class is description of a particular
@@ -37,7 +39,7 @@ import org.w3c.dom.DocumentType;
  *
  * @since  PR-DOM-Level-1-19980818.
  */
-public class PSVIDOMImplementationImpl extends DOMImplementationImpl {
+public class PSVIDOMImplementationImpl extends CoreDOMImplementationImpl {
 
     //
     // Data
@@ -46,7 +48,7 @@ public class PSVIDOMImplementationImpl extends DOMImplementationImpl {
     // static
 
     /** Dom implementation singleton. */
-    static final PSVIDOMImplementationImpl singleton = new PSVIDOMImplementationImpl();
+    static PSVIDOMImplementationImpl singleton = new PSVIDOMImplementationImpl();
 
     //
     // Public methods
@@ -81,12 +83,42 @@ public class PSVIDOMImplementationImpl extends DOMImplementationImpl {
                feature.equalsIgnoreCase("psvi");
     } // hasFeature(String,String):boolean
 
-    //
-    // Protected methods
-    //
-
-    protected CoreDocumentImpl createDocument(DocumentType doctype) {
-        return new PSVIDocumentImpl(doctype);
+    /**
+     * Introduced in DOM Level 2. <p>
+     *
+     * Creates an XML Document object of the specified type with its document
+     * element.
+     *
+     * @param namespaceURI     The namespace URI of the document
+     *                         element to create, or null.
+     * @param qualifiedName    The qualified name of the document
+     *                         element to create.
+     * @param doctype          The type of document to be created or null.<p>
+     *
+     *                         When doctype is not null, its
+     *                         Node.ownerDocument attribute is set to
+     *                         the document being created.
+     * @return Document        A new Document object.
+     * @throws DOMException    WRONG_DOCUMENT_ERR: Raised if doctype has
+     *                         already been used with a different document.
+     * @since WD-DOM-Level-2-19990923
+     */
+    public Document           createDocument(String namespaceURI,
+                                             String qualifiedName,
+                                             DocumentType doctype)
+                                             throws DOMException
+    {
+        if (doctype != null && doctype.getOwnerDocument() != null) {
+            throw new DOMException(DOMException.WRONG_DOCUMENT_ERR,
+                                   DOMMessageFormatter.formatMessage(
+                                   DOMMessageFormatter.XML_DOMAIN,
+                                                       "WRONG_DOCUMENT_ERR", null));
+        }
+        DocumentImpl doc = new PSVIDocumentImpl(doctype);
+        Element e = doc.createElementNS( namespaceURI, qualifiedName);
+        doc.appendChild(e);
+        return doc;
     }
 
-} // class PSVIDOMImplementationImpl
+
+} // class DOMImplementationImpl

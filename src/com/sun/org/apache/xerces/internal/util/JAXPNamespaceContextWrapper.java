@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
- * @LastModified: Oct 2017
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -21,13 +21,16 @@
 
 package com.sun.org.apache.xerces.internal.util;
 
-import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
+
 import javax.xml.XMLConstants;
+
+import com.sun.org.apache.xerces.internal.xni.NamespaceContext;
 
 /**
  * <p>A read-only XNI wrapper around a JAXP NamespaceContext.</p>
@@ -40,8 +43,8 @@ public final class JAXPNamespaceContextWrapper implements NamespaceContext {
 
     private javax.xml.namespace.NamespaceContext fNamespaceContext;
     private SymbolTable fSymbolTable;
-    private List<String> fPrefixes;
-    private final Vector<String> fAllPrefixes = new Vector<>();
+    private List fPrefixes;
+    private final Vector fAllPrefixes = new Vector();
 
     private int[] fContext = new int[8];
     private int fCurrentContext;
@@ -66,11 +69,11 @@ public final class JAXPNamespaceContextWrapper implements NamespaceContext {
         return fSymbolTable;
     }
 
-    public void setDeclaredPrefixes(List<String> prefixes) {
+    public void setDeclaredPrefixes(List prefixes) {
         fPrefixes = prefixes;
     }
 
-    public List<String> getDeclaredPrefixes() {
+    public List getDeclaredPrefixes() {
         return fPrefixes;
     }
 
@@ -102,7 +105,7 @@ public final class JAXPNamespaceContextWrapper implements NamespaceContext {
         return null;
     }
 
-    public Enumeration<String> getAllPrefixes() {
+    public Enumeration getAllPrefixes() {
         // There may be duplicate prefixes in the list so we
         // first transfer them to a set to ensure uniqueness.
         return Collections.enumeration(new TreeSet(fAllPrefixes));
@@ -135,7 +138,7 @@ public final class JAXPNamespaceContextWrapper implements NamespaceContext {
     }
 
     public String getDeclaredPrefixAt(int index) {
-        return fPrefixes.get(index);
+        return (String) fPrefixes.get(index);
     }
 
     public void reset() {

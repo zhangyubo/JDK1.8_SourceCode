@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,19 +20,19 @@
 
 package com.sun.org.apache.xerces.internal.impl.xs.traversers;
 
+import java.util.Stack;
+import java.util.Vector;
+
 import com.sun.org.apache.xerces.internal.impl.validation.ValidationState;
 import com.sun.org.apache.xerces.internal.impl.xs.SchemaNamespaceSupport;
 import com.sun.org.apache.xerces.internal.impl.xs.SchemaSymbols;
 import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaException;
 import com.sun.org.apache.xerces.internal.impl.xs.util.XInt;
 import com.sun.org.apache.xerces.internal.util.SymbolTable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.Attr;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  * Objects of this class hold all information pecular to a
@@ -51,7 +50,7 @@ class XSDocumentInfo {
     // Data
     protected SchemaNamespaceSupport fNamespaceSupport;
     protected SchemaNamespaceSupport fNamespaceSupportRoot;
-    protected Stack<SchemaNamespaceSupport> SchemaNamespaceSupportStack = new Stack<>();
+    protected Stack SchemaNamespaceSupportStack = new Stack();
 
     // schema's attributeFormDefault
     protected boolean fAreLocalAttributesQualified;
@@ -73,7 +72,7 @@ class XSDocumentInfo {
     protected Element fSchemaElement;
 
     // all namespaces that this document can refer to
-    List<String> fImportedNS = new ArrayList<>();
+    Vector fImportedNS = new Vector();
 
     protected ValidationState fValidationContext = new ValidationState();
 
@@ -189,7 +188,7 @@ class XSDocumentInfo {
     }
 
     void restoreNSSupport() {
-        fNamespaceSupport = SchemaNamespaceSupportStack.pop();
+        fNamespaceSupport = (SchemaNamespaceSupport)SchemaNamespaceSupportStack.pop();
         fValidationContext.setNamespaceSupport(fNamespaceSupport);
     }
 
@@ -199,7 +198,7 @@ class XSDocumentInfo {
     }
 
     public void addAllowedNS(String namespace) {
-        fImportedNS.add(namespace == null ? "" : namespace);
+        fImportedNS.addElement(namespace == null ? "" : namespace);
     }
 
     public boolean isAllowedNS(String namespace) {
@@ -208,16 +207,16 @@ class XSDocumentInfo {
 
     // store whether we have reported an error about that this document
     // can't access components from the given namespace
-    private List<String> fReportedTNS = null;
+    private Vector fReportedTNS = null;
     // check whether we need to report an error against the given uri.
     // if we have reported an error, then we don't need to report again;
     // otherwise we reported the error, and remember this fact.
     final boolean needReportTNSError(String uri) {
         if (fReportedTNS == null)
-            fReportedTNS = new ArrayList<>();
+            fReportedTNS = new Vector();
         else if (fReportedTNS.contains(uri))
             return false;
-        fReportedTNS.add(uri);
+        fReportedTNS.addElement(uri);
         return true;
     }
 

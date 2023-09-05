@@ -76,8 +76,12 @@ import java.util.Set;
         }
     }
 
+    HttpConnectSocketImpl(String server, int port) {
+        this.server = server;
+        this.port = port;
+    }
+
     HttpConnectSocketImpl(Proxy proxy) {
-        super(false);
         SocketAddress a = proxy.address();
         if ( !(a instanceof InetSocketAddress) )
             throw new IllegalArgumentException("Unsupported address type");

@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2002,2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,8 +20,7 @@
 
 package com.sun.org.apache.xerces.internal.impl.validation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 /**
  * ValidationManager is a coordinator property for validators in the
@@ -37,7 +35,7 @@ import java.util.List;
  */
 public class ValidationManager {
 
-    protected final List<ValidationState> fVSs = new ArrayList<>();
+    protected final Vector fVSs = new Vector();
     protected boolean fGrammarFound = false;
 
     // used by the DTD validator to tell other components that it has a
@@ -50,7 +48,7 @@ public class ValidationManager {
      * the validation manager.
      */
     public final void addValidationState(ValidationState vs) {
-        fVSs.add(vs);
+        fVSs.addElement(vs);
     }
 
     /**
@@ -58,7 +56,7 @@ public class ValidationManager {
      */
     public final void setEntityState(EntityState state) {
         for (int i = fVSs.size()-1; i >= 0; i--) {
-            (fVSs.get(i)).setEntityState(state);
+            ((ValidationState)fVSs.elementAt(i)).setEntityState(state);
         }
     }
 
@@ -80,7 +78,7 @@ public class ValidationManager {
 
 
     public final void reset (){
-        fVSs.clear();
+        fVSs.removeAllElements();
         fGrammarFound = false;
         fCachedDTD = false;
     }

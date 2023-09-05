@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  *
  *
@@ -425,8 +425,7 @@ public final class AccessController {
             throw new NullPointerException("null permissions parameter");
         }
         Class <?> caller = Reflection.getCallerClass();
-        DomainCombiner dc = (context == null) ? null : context.getCombiner();
-        return AccessController.doPrivileged(action, createWrapper(dc,
+        return AccessController.doPrivileged(action, createWrapper(null,
             caller, parent, context, perms));
     }
 
@@ -711,8 +710,7 @@ public final class AccessController {
             throw new NullPointerException("null permissions parameter");
         }
         Class <?> caller = Reflection.getCallerClass();
-        DomainCombiner dc = (context == null) ? null : context.getCombiner();
-        return AccessController.doPrivileged(action, createWrapper(dc, caller, parent, context, perms));
+        return AccessController.doPrivileged(action, createWrapper(null, caller, parent, context, perms));
     }
 
 

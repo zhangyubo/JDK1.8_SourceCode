@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001-2005 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -790,7 +790,7 @@ public class AbstractDOMParser extends AbstractXMLDocumentParser {
                 // use specified document class
                 try {
                     Class documentClass = ObjectFactory.findProviderClass (fDocumentClassName, true);
-                    fDocument = (Document)documentClass.getConstructor().newInstance();
+                    fDocument = (Document)documentClass.newInstance ();
 
                     // if subclass of our own class that's cool too
                     Class defaultDocClass =
@@ -1750,9 +1750,7 @@ public class AbstractDOMParser extends AbstractXMLDocumentParser {
                 "xml:base",
                 "http://www.w3.org/XML/1998/namespace",
                 baseURI,
-                true,
-                false,
-                null);
+                true);
             }
         }
         else if (nodeType == Node.PROCESSING_INSTRUCTION_NODE) {

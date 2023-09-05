@@ -254,7 +254,6 @@ abstract class DoublePipeline<E_IN>
 
     @Override
     public final DoubleStream flatMap(DoubleFunction<? extends DoubleStream> mapper) {
-        Objects.requireNonNull(mapper);
         return new StatelessOp<Double>(this, StreamShape.DOUBLE_VALUE,
                                         StreamOpFlag.NOT_SORTED | StreamOpFlag.NOT_DISTINCT | StreamOpFlag.NOT_SIZED) {
             @Override
@@ -470,7 +469,6 @@ abstract class DoublePipeline<E_IN>
     public final <R> R collect(Supplier<R> supplier,
                                ObjDoubleConsumer<R> accumulator,
                                BiConsumer<R, R> combiner) {
-        Objects.requireNonNull(combiner);
         BinaryOperator<R> operator = (left, right) -> {
             combiner.accept(left, right);
             return left;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -32,10 +32,11 @@ import com.sun.org.apache.xml.internal.security.keys.content.MgmtData;
 import com.sun.org.apache.xml.internal.security.keys.content.X509Data;
 
 /**
- * Utility class for {@code com.sun.org.apache.xml.internal.security.keys} package.
+ * Utility class for for <CODE>com.sun.org.apache.xml.internal.security.keys</CODE> package.
  *
+ * @author $Author: coheigea $
  */
-public final class KeyUtils {
+public class KeyUtils {
 
     private KeyUtils() {
         // no instantiation

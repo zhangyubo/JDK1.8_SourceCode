@@ -63,7 +63,7 @@ public class CatalogEntry {
 
   /** The entryTypes vector maps catalog entry types to the
       number of arguments they're required to have. */
-  static final Vector entryArgs = new Vector();
+  protected static Vector entryArgs = new Vector();
 
   /**
    * Adds a new catalog entry type.

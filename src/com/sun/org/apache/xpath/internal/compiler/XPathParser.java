@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 1999-2004 The Apache Software Foundation.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
+ * $Id: XPathParser.java,v 1.2.4.1 2005/09/14 19:46:02 jeffsuttor Exp $
+ */
 package com.sun.org.apache.xpath.internal.compiler;
 
 import javax.xml.transform.ErrorListener;
@@ -35,7 +37,6 @@ import com.sun.org.apache.xpath.internal.res.XPATHErrorResources;
  * Tokenizes and parses XPath expressions. This should really be named
  * XPathParserImpl, and may be renamed in the future.
  * @xsl.usage general
- * @LastModified: May 2019
  */
 public class XPathParser
 {
@@ -72,9 +73,6 @@ public class XPathParser
   protected final static int FILTER_MATCH_FAILED     = 0;
   protected final static int FILTER_MATCH_PRIMARY    = 1;
   protected final static int FILTER_MATCH_PREDICATES = 2;
-
-  // counts open predicates
-  private int countPredicate;
 
   /**
    * The parser constructor.
@@ -162,9 +160,6 @@ public class XPathParser
           }
           else
                 throw e;
-    } catch (StackOverflowError sof) {
-        error(XPATHErrorResources.ER_PREDICATE_TOO_MANY_OPEN,
-              new Object[]{m_token, m_queueMark, countPredicate});
     }
 
     compiler.shrink();
@@ -198,12 +193,7 @@ public class XPathParser
     m_ops.setOp(OpMap.MAPINDEX_LENGTH, 2);
 
     nextToken();
-    try {
-        Pattern();
-    } catch (StackOverflowError sof) {
-        error(XPATHErrorResources.ER_PREDICATE_TOO_MANY_OPEN,
-              new Object[]{m_token, m_queueMark, countPredicate});
-    }
+    Pattern();
 
     if (null != m_token)
     {
@@ -723,7 +713,8 @@ public class XPathParser
   {
 
     int tok;
-    Integer id;
+
+    Object id;
 
     try
     {
@@ -731,7 +722,7 @@ public class XPathParser
       // a FilterExpr.
       id = Keywords.lookupNodeTest(key);
       if (null == id) id = m_functionTable.getFunctionID(key);
-      tok = id;
+      tok = ((Integer) id).intValue();
     }
     catch (NullPointerException npe)
     {
@@ -798,7 +789,7 @@ public class XPathParser
    */
   protected void Expr() throws javax.xml.transform.TransformerException
   {
-       OrExpr();
+    OrExpr();
   }
 
   /**
@@ -1940,12 +1931,11 @@ public class XPathParser
    */
   protected void Predicate() throws javax.xml.transform.TransformerException
   {
+
     if (tokenIs('['))
     {
-      countPredicate++;
       nextToken();
       PredicateExpr();
-      countPredicate--;
       consumeExpected(']');
     }
   }

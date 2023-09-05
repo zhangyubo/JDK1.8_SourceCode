@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Copyright 2001-2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -34,7 +34,6 @@ import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
 import com.sun.org.apache.xerces.internal.xs.XSNamespaceItem;
 import com.sun.org.apache.xerces.internal.xs.XSObjectList;
 import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
-import com.sun.org.apache.xerces.internal.xs.XSValue;
 
 /**
  * The XML representation for an element declaration
@@ -257,7 +256,6 @@ public class XSElementDecl implements XSElementDeclaration {
      * A value constraint: The actual value (with respect to the {type
      * definition})
      */
-    @Deprecated
     public String getConstraintValue() {
         // REVISIT: SCAPI: what's the proper representation
         return getConstraintType() == XSConstants.VC_NONE ?
@@ -369,29 +367,22 @@ public class XSElementDecl implements XSElementDeclaration {
         fNamespaceItem = namespaceItem;
     }
 
-    @Deprecated
     public Object getActualVC() {
         return getConstraintType() == XSConstants.VC_NONE ?
                null :
                fDefault.actualValue;
     }
 
-    @Deprecated
     public short getActualVCType() {
         return getConstraintType() == XSConstants.VC_NONE ?
                XSConstants.UNAVAILABLE_DT :
                fDefault.actualValueType;
     }
 
-    @Deprecated
     public ShortList getItemValueTypes() {
         return getConstraintType() == XSConstants.VC_NONE ?
                null :
                fDefault.itemValueTypes;
-    }
-
-    public XSValue getValueConstraintValue() {
-        return fDefault;
     }
 
 } // class XSElementDecl

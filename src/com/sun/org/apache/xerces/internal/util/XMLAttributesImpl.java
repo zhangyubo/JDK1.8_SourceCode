@@ -193,7 +193,7 @@ implements XMLAttributes, XMLBufferListener {
 
         int index;
         if (fLength < SIZE_LIMIT) {
-            index = name.uri != null && name.uri.length() != 0
+            index = name.uri != null && !name.uri.equals("")
                 ? getIndexFast(name.uri, name.localpart)
                 : getIndexFast(name.rawname);
 
@@ -1153,6 +1153,29 @@ implements XMLAttributes, XMLBufferListener {
     } // getURI(int,QName)
 
     // Implementation methods
+    public void setSchemaId(int attrIndex, boolean schemaId) {
+        fAttributes[attrIndex].schemaId = schemaId;
+    }
+
+    public boolean getSchemaId(int index) {
+        if (index < 0 || index >= fLength) {
+            return false;
+        }
+        return fAttributes[index].schemaId;
+    }
+
+    public boolean getSchemaId(String qname) {
+        int index = getIndex(qname);
+        return index != -1 ? fAttributes[index].schemaId : false;
+    } // getType(String):String
+
+    public boolean getSchemaId(String uri, String localName) {
+        if (!fNamespaces) {
+            return false;
+        }
+        int index = getIndex(uri, localName);
+        return index != -1 ? fAttributes[index].schemaId : false;
+    } // getType(String,String):String
 
     //XMLBufferListener methods
     /**
@@ -1236,7 +1259,7 @@ implements XMLAttributes, XMLBufferListener {
         // basic info
 
         /** Name. */
-        public final QName name = new QName();
+        public QName name = new QName();
 
         /** Type. */
         public String type;
@@ -1253,6 +1276,8 @@ implements XMLAttributes, XMLBufferListener {
         /** Specified. */
         public boolean specified;
 
+        /** Schema ID type. */
+        public boolean schemaId;
 
         /**
          * Augmentations information for this attribute.

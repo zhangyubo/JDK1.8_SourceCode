@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * @author $Author: coheigea $
  */
 public class KeyName extends SignatureElementProxy implements KeyInfoContent {
 
@@ -36,11 +37,11 @@ public class KeyName extends SignatureElementProxy implements KeyInfoContent {
      * Constructor KeyName
      *
      * @param element
-     * @param baseURI
+     * @param BaseURI
      * @throws XMLSecurityException
      */
-    public KeyName(Element element, String baseURI) throws XMLSecurityException {
-        super(element, baseURI);
+    public KeyName(Element element, String BaseURI) throws XMLSecurityException {
+        super(element, BaseURI);
     }
 
     /**
@@ -64,7 +65,7 @@ public class KeyName extends SignatureElementProxy implements KeyInfoContent {
         return this.getTextFromTextChild();
     }
 
-    /** {@inheritDoc} */
+    /** @inheritDoc */
     public String getBaseLocalName() {
         return Constants._TAG_KEYNAME;
     }

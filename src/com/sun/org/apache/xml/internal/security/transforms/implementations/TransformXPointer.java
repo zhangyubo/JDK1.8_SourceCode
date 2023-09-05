@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 /**
@@ -33,6 +33,7 @@ import com.sun.org.apache.xml.internal.security.transforms.Transforms;
 /**
  * Class TransformXPointer
  *
+ * @author Christian Geuer-Pollmann
  */
 public class TransformXPointer extends TransformSpi {
 
@@ -41,7 +42,7 @@ public class TransformXPointer extends TransformSpi {
         Transforms.TRANSFORM_XPOINTER;
 
 
-    /** {@inheritDoc} */
+    /** @inheritDoc */
     protected String engineGetURI() {
         return implementedTransformURI;
     }
